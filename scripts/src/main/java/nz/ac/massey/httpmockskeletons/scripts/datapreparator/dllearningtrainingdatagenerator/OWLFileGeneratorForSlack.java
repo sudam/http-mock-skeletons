@@ -7,7 +7,6 @@ import nz.ac.massey.httpmockskeletons.scripts.commons.URITokeniser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
-import static nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel.*;
 
 /**
  * this class allows to check what are the attributes and their indexes
@@ -58,8 +56,10 @@ public class OWLFileGeneratorForSlack {
     public static List<OWLClass> owlClassToDisjointResponseHeaderList = new ArrayList<OWLClass>();
     public static List<OWLClass> owlClassToDisjointResponseBodyList = new ArrayList<OWLClass>();
 
-    public static void generateOwlFile(String owlFileName, String SubdataFileName) throws Exception {
+    public static void generateOwlFile(String owlFileName, String SubdataFileName, String subTrainingFileName) throws Exception {
         try {
+            LOGGER.info("Generating OWL File");
+
             //IRI stands for Internationalised Resource Identifier
             //provides link to the ontology on the web, every class, every property, every individual has one
             IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
@@ -69,12 +69,14 @@ public class OWLFileGeneratorForSlack {
             //to create ontology building blocks
             OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 
-            RequestMethodOwlClassList = getSlackOwlClassList(factory, ontology, manager, IOR, "RequestMethod");
-            RequestHeaderOwlClassList = getSlackOwlClassList(factory, ontology, manager, IOR, "RequestHeader");
-            RequestUriOwlClassList = getSlackOwlClassList(factory, ontology, manager, IOR, "RequestURI");
-            ResponseHeaderOwlClassList = getSlackOwlClassList(factory, ontology, manager, IOR, "ResponseHeader");
-            ResponseStatusCodeOwlClassList = getSlackOwlClassList(factory, ontology, manager, IOR, "ResponseStatusCode");
-            ResponseBodyOwlClassList = getSlackOwlClassList(factory, ontology, manager, IOR, "ResponseBody");
+            // createOwlClassLists(IOR, factory, subTrainingFileName);
+
+            RequestMethodOwlClassList = readFileOwlClassList(FeatureType.RequestMethod);
+            RequestHeaderOwlClassList = readFileOwlClassList(FeatureType.RequestHeader);
+            RequestUriOwlClassList = readFileOwlClassList(FeatureType.RequestURI);
+            ResponseHeaderOwlClassList = readFileOwlClassList(FeatureType.ResponseHeader);
+            ResponseStatusCodeOwlClassList = readFileOwlClassList(FeatureType.ResponseStatusCode);
+            ResponseBodyOwlClassList = readFileOwlClassList(FeatureType.ResponseBody);
 
             // OBJECT PROPERTIES
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty(IRI.create((IOR + "#isPrecededBy")));
@@ -965,5 +967,236 @@ public class OWLFileGeneratorForSlack {
         }
 
         return null;
+    }
+
+    public static void createOWLClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, String subTrainingFileName) throws IOException {
+        // set index of first and last columns to loop through each feature type
+        int colStart = GetColNumber(featureType, "start");
+        int colEnd = GetColNumber(featureType, "end");
+
+        String csvFile = "src/resources/"+ subTrainingFileName + ".csv";
+        BufferedReader br = null;
+        String line = "";
+
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+
+        br = new BufferedReader(new FileReader(csvFile));
+        line = br.readLine();
+        String[] headerText = line.split(cvsSplitBy);
+
+        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
+
+        for (int i = colStart; i <= colEnd; i++) {
+            List<String> distinctFeatureValueList = GetDistinctFeatureValuesFromCSV(i, headerText, valueLinesList);
+            for (String headerItem : distinctFeatureValueList) {
+
+                if (distinctFeatureValueList.size() >= 10) { // don't add classes to the list those who have 10 or more distinct values
+                } else {
+                    if (headerItem.indexOf(" ") >= 0 || headerItem.contains(",") || headerItem.contains(";") || headerItem.contains("=") || headerItem.contains("/")) {
+                        headerItem = "\'" + headerItem + "\'";
+                    }
+
+                    switch (featureType) {
+                        case RequestHeader:
+                            RequestHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case ResponseHeader:
+                            ResponseHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case ResponseBody:
+                            if (headerItem.contains("#") && StringUtils.countMatches(headerItem, "#") == 2) {
+                                headerItem = "#" + headerItem.split("#", 2)[1];
+                            }
+                            ResponseBodyOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case RequestURI:
+                            RequestUriOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case ResponseStatusCode:
+                            ResponseStatusCodeOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case RequestMethod:
+                            RequestMethodOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        default: {
+                        }
+                    }
+                }
+            }
+
+        }
+        // write class lists for each feature in to a file
+        switch (featureType) {
+            case RequestMethod:
+                writeOwlClassListToFile(RequestMethodOwlClassList, FeatureType.RequestMethod);
+                LOGGER.info("RequestMethod class list created");
+                break;
+            case RequestHeader:
+                writeOwlClassListToFile(RequestHeaderOwlClassList, FeatureType.RequestHeader);
+                LOGGER.info("RequestHeader class list created");
+                break;
+            case RequestURI:
+                writeOwlClassListToFile(RequestUriOwlClassList, FeatureType.RequestURI);
+                LOGGER.info("RequestURI class list created");
+                break;
+            case ResponseHeader:
+                writeOwlClassListToFile(ResponseHeaderOwlClassList, FeatureType.ResponseHeader);
+                LOGGER.info("ResponseHeader class list created");
+                break;
+            case ResponseBody:
+                writeOwlClassListToFile(ResponseBodyOwlClassList, FeatureType.ResponseBody);
+                LOGGER.info("ResponseBody class list created");
+                break;
+            case ResponseStatusCode:
+                writeOwlClassListToFile(ResponseStatusCodeOwlClassList, FeatureType.ResponseStatusCode);
+                LOGGER.info("ResponseStatusCode class list created");
+                break;
+            default: {
+            }
+        }
+    }
+
+    public static int GetColNumber(FeatureType featureType, String startOrEnd) {
+        int startPoint;
+        int endPoint;
+
+        switch (featureType) {
+            case RequestMethod:
+                startPoint = 0;
+                endPoint = 0;
+                break;
+            case RequestHeader:
+                startPoint = 16;
+                endPoint = 23;
+                break;
+            case ResponseHeader:
+                startPoint = 24;
+                endPoint = 47;
+                break;
+            case ResponseStatusCode:
+                startPoint = 1;
+                endPoint = 1;
+                break;
+            case ResponseBody:
+                startPoint = 48;
+                endPoint = 59;
+                break;
+            case RequestURI:
+                startPoint = 2;
+                endPoint = 15;
+                break;
+            default:
+                return 0;
+        }
+
+        if (startOrEnd == "start")
+            return startPoint;
+        return endPoint;
+    }
+
+    public static List<String> GetDistinctFeatureValuesFromCSV(int i, String[] headerText, List<String> valueLinesList) throws IOException {
+
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+        List<String> rhConnectionList = new ArrayList<>();
+
+        String header = "";
+
+        for (String valueLine : valueLinesList) {
+            header = headerText[i];
+            // new - replace ':' with '_'
+            if (header.contains(":")) {
+                header = header.replace(":", "_");
+            }
+            String[] valueText = valueLine.split(cvsSplitBy);
+            String finalString = "";
+
+            // to remove "_" from value part
+            if (valueText[i].contains("message_not_found")) {
+                valueText[i] = valueText[i].replaceAll("_", "");
+            }
+
+            finalString = ("#" + header + "_" + valueText[i]).toString().replace("\"", "");
+
+            rhConnectionList.add(finalString);
+        }
+
+        List<String> rhConnectionFinalList = rhConnectionList.stream().distinct().collect(Collectors.toList());
+
+        return rhConnectionFinalList;
+    }
+
+    public static void writeOwlClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
+        String featureTypeForFile = featureType.toString();
+        try {
+            FileOutputStream fos = new FileOutputStream("src/resources/slackClassNameLists/" + featureTypeForFile + "OwlClassList");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(OwlClassList);
+            oos.close();
+            fos.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void createOwlClassLists(IRI IOR, OWLDataFactory factory, String subTrainingFileName) throws IOException {
+        createOWLClassList(IOR, factory, FeatureType.RequestMethod, subTrainingFileName);
+        createOWLClassList(IOR, factory, FeatureType.RequestHeader, subTrainingFileName);
+        createOWLClassList(IOR, factory, FeatureType.ResponseHeader, subTrainingFileName);
+        createOWLClassList(IOR, factory, FeatureType.ResponseStatusCode, subTrainingFileName);
+        createOWLClassList(IOR, factory, FeatureType.ResponseBody, subTrainingFileName);
+        createOWLClassList(IOR, factory, FeatureType.RequestURI, subTrainingFileName);
+    }
+
+    public static ArrayList<OWLClass> readFileOwlClassList(FeatureType featureType) {
+        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
+        String listPath = "src/resources/slackClassNameLists/";
+
+        try {
+            FileInputStream fis = null;
+
+            switch (featureType) {
+                case RequestHeader:
+                    fis = new FileInputStream(listPath + "RequestHeaderOwlClassList");
+                    break;
+                case ResponseHeader:
+                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
+                    break;
+                case ResponseBody:
+                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
+                    break;
+                case RequestURI:
+                    fis = new FileInputStream(listPath + "RequestURIOwlClassList");
+                    break;
+                case ResponseStatusCode:
+                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
+                    break;
+                case RequestMethod:
+                    fis = new FileInputStream(listPath + "RequestMethodOwlClassList");
+                    break;
+                case RequestAuthToken:
+                    fis = new FileInputStream(listPath + "RequestAuthTokenOwlClassList");
+                    break;
+                default: {
+                }
+            }
+
+            ObjectInputStream ois = new ObjectInputStream(fis);
+
+            URIList = (ArrayList) ois.readObject();
+
+            ois.close();
+            fis.close();
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+
+        } catch (ClassNotFoundException c) {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return null;
+        }
+
+        return URIList;
     }
 }

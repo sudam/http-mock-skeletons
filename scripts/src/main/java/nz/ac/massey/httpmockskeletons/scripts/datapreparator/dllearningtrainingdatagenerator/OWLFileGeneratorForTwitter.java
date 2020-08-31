@@ -60,8 +60,11 @@ public class OWLFileGeneratorForTwitter {
     public static List<OWLClass> owlClassToDisjointResponseHeaderList = new ArrayList<OWLClass>();
     public static List<OWLClass> owlClassToDisjointResponseBodyList = new ArrayList<OWLClass>();
 
-    public static void generateOwlFile(String owlFileName, String subdataFileName) throws Exception {
+    public static void generateOwlFile(String owlFileName, String subdataFileName, String subTrainingFileName) throws Exception {
         try {
+
+            LOGGER.info("Generating OWL File");
+
             //IRI stands for Internationalised Resource Identifier
             //provides link to the ontology on the web, every class, every property, every individual has one
             IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
@@ -71,18 +74,20 @@ public class OWLFileGeneratorForTwitter {
             //to create ontology building blocks
             OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 
-            RequestMethodOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "RequestMethod");
-            RequestHeaderOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "RequestHeader");
-            ResponseHeaderOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "ResponseHeader");
-            ResponseStatusCodeOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "ResponseStatusCode");
-            ResponseBodyOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "ResponseBody");
-            RequestAuthTokenOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "RequestAuthToken");
-            RequestUriOwlClassList = getTwitterOwlClassList(factory, ontology, manager, IOR, "RequestURI");
+            // createOwlClassLists(IOR, factory, subTrainingFileName);
 
-            owlClassToDisjointRequestHeaderList = getTwitterDisjointOwlClassList(factory, ontology, manager, IOR, "RequestHeader");
-            owlClassToDisjointRequestUriList = getTwitterDisjointOwlClassList(factory, ontology, manager, IOR, "RequestURI");
-            owlClassToDisjointResponseHeaderList = getTwitterDisjointOwlClassList(factory, ontology, manager, IOR, "ResponseHeader");
-            owlClassToDisjointResponseBodyList = getTwitterDisjointOwlClassList(factory, ontology, manager, IOR, "ResponseBody");
+            RequestMethodOwlClassList = readOwlClassLists(FeatureType.RequestMethod);
+            RequestHeaderOwlClassList = readOwlClassLists(FeatureType.RequestHeader);
+            ResponseHeaderOwlClassList = readOwlClassLists(FeatureType.ResponseHeader);
+            ResponseStatusCodeOwlClassList = readOwlClassLists(FeatureType.ResponseStatusCode);
+            ResponseBodyOwlClassList = readOwlClassLists(FeatureType.ResponseBody);
+            RequestAuthTokenOwlClassList = readOwlClassLists(FeatureType.RequestAuthToken);
+            RequestUriOwlClassList = readOwlClassLists(FeatureType.RequestURI);
+
+            owlClassToDisjointRequestHeaderList = readDisjointClassLists(FeatureType.RequestHeader);
+            owlClassToDisjointRequestUriList = readDisjointClassLists(FeatureType.RequestURI);
+            owlClassToDisjointResponseHeaderList = readDisjointClassLists(FeatureType.ResponseHeader);
+            owlClassToDisjointResponseBodyList = readDisjointClassLists(FeatureType.ResponseBody);
 
             // Object properties
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty(IRI.create(IOR + "#isPrecededBy"));
@@ -108,6 +113,9 @@ public class OWLFileGeneratorForTwitter {
             manager.applyChange(addAxiomChangeHasPreviousIrreflexive);
 
             HTTPTransaction.read("src/resources/" + subdataFileName + ".csv");
+
+            // Create disjoint class lists
+            // createDisjointClassLists(factory);
 
             List<String> lastIdList = new ArrayList<>();
 
@@ -153,6 +161,8 @@ public class OWLFileGeneratorForTwitter {
             File fileOut = new File("src/resources/" + owlFileName + ".owl");
 
             manager.saveOntology(ontology, new FileOutputStream(fileOut));
+
+            LOGGER.info("OWL File Generated");
 
         } catch (OWLOntologyCreationException x) {
             LOGGER.warn("Exception writing details to log ", x);
@@ -1020,4 +1030,447 @@ public class OWLFileGeneratorForTwitter {
 
         return key + "~" + value;
     }
+
+    public static void createOwlClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, String subTrainingFileName) throws IOException {
+        // set index of first and last columns to loop through each feature type
+        int colStart = getColumnNumber(featureType, "start");
+        int colEnd = getColumnNumber(featureType, "end");
+
+        String csvFile = "src/resources/" + subTrainingFileName + ".csv";
+        BufferedReader br = null;
+        String line = "";
+
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+
+        br = new BufferedReader(new FileReader(csvFile));
+        line = br.readLine();
+        String[] headerText = line.split(cvsSplitBy);
+
+        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
+
+        for (int i = colStart; i <= colEnd; i++) {
+            List<String> distinctFeatureValueList = getDistinctFeatureValuesFromCSV(i, headerText, valueLinesList);
+            for (String headerItem : distinctFeatureValueList) {
+
+                if (distinctFeatureValueList.size() >= 10) { // don't add classes to the list those who have 10 or more distinct values
+                } else {
+                    if (headerItem.indexOf(" ") >= 0 || headerItem.contains(",") || headerItem.contains(";") || headerItem.contains("=") || headerItem.contains("/")) {
+                        headerItem = "\'" + headerItem + "\'";
+                    }
+
+                    switch (featureType) {
+                        case RequestHeader:
+                            RequestHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case ResponseHeader:
+                            ResponseHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case ResponseBody:
+                            if (headerItem.contains("#") && StringUtils.countMatches(headerItem, "#") == 2) {
+                                headerItem = "#" + headerItem.split("#", 2)[1];
+                            }
+                            ResponseBodyOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case RequestURI:
+                            RequestUriOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case ResponseStatusCode:
+                            ResponseStatusCodeOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case RequestMethod:
+                            RequestMethodOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        case RequestAuthToken:
+                            RequestAuthTokenOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            break;
+                        default: {
+                        }
+                    }
+                }
+            }
+        }
+        switch (featureType) {
+            case RequestHeader:
+                LOGGER.info("RequestHeader class list created");
+                writeOwlClassListToFile(RequestHeaderOwlClassList, FeatureType.RequestHeader);
+                break;
+            case ResponseHeader:
+                LOGGER.info("ResponseHeader class list created");
+                writeOwlClassListToFile(ResponseHeaderOwlClassList, FeatureType.ResponseHeader);
+                break;
+            case ResponseBody:
+                LOGGER.info("ResponseBody class list created");
+                writeOwlClassListToFile(ResponseBodyOwlClassList, FeatureType.ResponseBody);
+                break;
+            case RequestURI:
+                LOGGER.info("RequestURI class list created");
+                writeOwlClassListToFile(RequestUriOwlClassList, FeatureType.RequestURI);
+                break;
+            case ResponseStatusCode:
+                LOGGER.info("ResponseStatusCode class list created");
+                writeOwlClassListToFile(ResponseStatusCodeOwlClassList, FeatureType.ResponseStatusCode);
+                break;
+            case RequestMethod:
+                LOGGER.info("RequestMethod class list created");
+                writeOwlClassListToFile(RequestMethodOwlClassList, FeatureType.RequestMethod);
+                break;
+            case RequestAuthToken:
+                LOGGER.info("RequestAuthToken class list created");
+                writeOwlClassListToFile(RequestAuthTokenOwlClassList, FeatureType.RequestAuthToken);
+                break;
+            default: {
+            }
+        }
+    }
+
+    public static int getColumnNumber(FeatureType featureType, String startOrEnd) {
+        int startPoint;
+        int endPoint;
+
+        switch (featureType) {
+            case RequestMethod:
+                startPoint = 0;
+                endPoint = 0;
+                break;
+            case RequestHeader:
+                startPoint = 16;
+                endPoint = 23;
+                break;
+            case ResponseHeader:
+                startPoint = 24;
+                endPoint = 44;
+                break;
+            case ResponseStatusCode:
+                startPoint = 1;
+                endPoint = 1;
+                break;
+            case ResponseBody:
+                startPoint = 45;
+                endPoint = 111;
+                break;
+            case RequestURI:
+                startPoint = 2;
+                endPoint = 15;
+                break;
+            default:
+                return 0;
+        }
+
+        if (startOrEnd == "start")
+            return startPoint;
+        return endPoint;
+    }
+
+    public static List<String> getDistinctFeatureValuesFromCSV(int i, String[] headerText, List<String> valueLineList) {
+
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+        List<String> rhConnectionList = new ArrayList<>();
+
+        String header = "";
+
+        for (String valueLine : valueLineList) {
+            header = headerText[i];
+            if (header.contains(":")) {
+                header = header.replace(":", "_");
+            }
+
+            String finalString = "";
+            String[] valueText = valueLine.split(cvsSplitBy);
+
+            finalString = ("#" + header + "_" + valueText[i]).toString().replace("\"", ""); // USE THIS LINE FOR ALL THE TYPES EXCEPT 'BODY'
+
+            rhConnectionList.add(finalString);
+        }
+
+        List<String> rhConnectionFinalList = rhConnectionList.stream().distinct().collect(Collectors.toList());
+
+        return rhConnectionFinalList;
+
+    }
+
+    public static void createDisjointClassList(List<HTTPTransaction> mm, OWLDataFactory factory) {
+        IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
+        String refinedValue = "";
+        String currentValue = "";
+
+        // REQUEST HEADER
+        for (int i = 0; i < RequestHeaderOwlClassList.size(); i++) {
+            for (int j = 0; j < RequestHeaderOwlClassList.size(); j++) {
+                String currentKey = "";
+                String nextKey = "";
+
+                if (StringUtils.countMatches(RequestHeaderOwlClassList.get(i).toString(), "_") == 1) {
+                    currentKey = RequestHeaderOwlClassList.get(i).toString().split("#")[1].split("_", 2)[0];
+                    nextKey = RequestHeaderOwlClassList.get(j).toString().split("#")[1].split("_", 2)[0];
+                    if (StringUtils.countMatches(RequestHeaderOwlClassList.get(j).toString(), "_") == 1) {
+                        currentValue = RequestHeaderOwlClassList.get(i).toString().split("#")[1].split("_", 2)[1].split(">")[0];
+                    }
+                } else if (StringUtils.countMatches(RequestHeaderOwlClassList.get(i).toString(), "_") > 1) {
+                    currentKey = RequestHeaderOwlClassList.get(i).toString().split("#")[1].split("_", 3)[1];
+                    nextKey = RequestHeaderOwlClassList.get(j).toString().split("#")[1].split("_", 3)[1];
+                    if (StringUtils.countMatches(RequestHeaderOwlClassList.get(j).toString(), "_") > 1) {
+                        currentValue = RequestHeaderOwlClassList.get(i).toString().split("#")[1].split("_", 3)[2].split(">")[0];
+                    }
+                }
+
+                if (currentKey.equals(nextKey) && i != j) {
+                    if (StringUtils.countMatches(currentValue, "\'") > 2) {
+                        currentValue = currentValue.split("'")[1];
+                    } else {
+                        currentValue = currentValue.split("'")[0];
+                    }
+
+                    if (currentValue.contains("\"")) {
+                        currentValue = currentValue.replace("\"", "");
+                    }
+
+                    if (isFeatureExists(mm, currentKey, currentValue, FeatureType.RequestHeader)) {
+                        refinedValue = refineValueTwitter(currentValue);
+                        String finalString = ("#RequestHeader_" + nextKey + "_" + refinedValue).toString().replace("\"", "");
+                        OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
+                        owlClassToDisjointRequestHeaderList.add(owlClassToDisjoint);
+                    }
+                }
+            }
+        }
+
+        // REQUEST URI
+        for (int i = 0; i < RequestUriOwlClassList.size(); i++) {
+            for (int j = 0; j < RequestUriOwlClassList.size(); j++) {
+                String currentKey = "";
+                String nextKey = "";
+
+                currentKey = RequestUriOwlClassList.get(i).toString().split("#")[1].split("_", 2)[0];
+                nextKey = RequestUriOwlClassList.get(j).toString().split("#")[1].split("_", 2)[0];
+                currentValue = RequestUriOwlClassList.get(i).toString().split("#")[1].split("_", 2)[1].split(">")[0];
+
+                if (currentKey.equals(nextKey) && i != j) {
+                    if (isFeatureExists(mm, currentKey, currentValue, FeatureType.RequestURI)) {
+                        refinedValue = refineValueTwitter(currentValue);
+                        String finalString = ("#" + nextKey + "_" + refinedValue).toString().replace("''", "\'");
+                        OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
+                        owlClassToDisjointRequestUriList.add(owlClassToDisjoint);
+                    }
+                }
+            }
+        }
+
+        // RESPONSE HEADER
+        for (int i = 0; i < ResponseHeaderOwlClassList.size(); i++) {
+            for (int j = 0; j < ResponseHeaderOwlClassList.size(); j++) {
+                String currentKey = ResponseHeaderOwlClassList.get(i).toString().split("#")[1].split("_", 3)[1];
+                String nextKey = ResponseHeaderOwlClassList.get(j).toString().split("#")[1].split("_", 3)[1];
+                currentValue = ResponseHeaderOwlClassList.get(i).toString().split("#")[1].split("_", 3)[2].split(">")[0];
+
+                if (currentKey.equals(nextKey) && i != j) {
+                    if (StringUtils.countMatches(currentValue, "\'") > 2) {
+                        currentValue = currentValue.split("'")[1];
+                    } else {
+                        currentValue = currentValue.split("'")[0];
+                    }
+
+                    if (currentValue.contains("\"")) {
+                        currentValue = currentValue.replace("\"", "");
+                    }
+
+                    if (isFeatureExists(mm, currentKey, currentValue, FeatureType.ResponseHeader)) {
+                        refinedValue = refineValueTwitter(currentValue);
+
+                        String finalString = ("#ResponseHeader_" + nextKey + "_" + refinedValue).toString().replace("\"", "");
+
+                        if (!finalString.contains("content-type_json")) {
+                            OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
+                            owlClassToDisjointResponseHeaderList.add(owlClassToDisjoint);
+                        }
+                    }
+                }
+            }
+        }
+
+        // RESPONSE BODY
+        for (int i = 0; i < ResponseBodyOwlClassList.size(); i++) {
+            for (int j = 0; j < ResponseBodyOwlClassList.size(); j++) {
+                String currentKeyString = "";
+                String currentKey = "";
+                String nextKeyString = "";
+                String nextKey = "";
+
+                currentKeyString = ResponseBodyOwlClassList.get(i).toString();
+                currentKey = getResponseBodyKeyValue(currentKeyString).split("~")[0];
+                currentValue = getResponseBodyKeyValue(currentKeyString).split("~")[1];
+                nextKeyString = ResponseBodyOwlClassList.get(j).toString();
+                nextKey = getResponseBodyKeyValue(nextKeyString).split("~")[0];
+
+                if (currentKey.equals(nextKey) && i != j) {
+                    if (isFeatureExists(mm, currentKey, currentValue, FeatureType.ResponseBody)) {
+                        refinedValue = refineValueTwitter(currentValue);
+
+                        if (refinedValue.contains("#")) {
+                            refinedValue = refinedValue.split("#")[1];
+                        }
+
+                        if (refinedValue.contains("_")) {
+                            refinedValue = refinedValue.replace("_", "");
+                        }
+
+                        String finalString = ("#ResponseBody_" + nextKey + "_" + refinedValue).toString().replace("\"", "");
+                        OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
+                        owlClassToDisjointResponseBodyList.add(owlClassToDisjoint);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void createOwlClassLists(IRI IOR, OWLDataFactory factory, String subTrainingFileName) throws IOException {
+        createOwlClassList(IOR, factory, FeatureType.RequestMethod, subTrainingFileName);
+        createOwlClassList(IOR, factory, FeatureType.RequestHeader, subTrainingFileName);
+        createOwlClassList(IOR, factory, FeatureType.ResponseHeader, subTrainingFileName);
+        createOwlClassList(IOR, factory, FeatureType.ResponseStatusCode, subTrainingFileName);
+        createOwlClassList(IOR, factory, FeatureType.ResponseBody, subTrainingFileName);
+        createOwlClassList(IOR, factory, FeatureType.RequestAuthToken, subTrainingFileName);
+        createOwlClassList(IOR, factory, FeatureType.RequestURI, subTrainingFileName);
+    }
+
+    public static void writeOwlClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
+        String featureTypeForFile = featureType.toString();
+        try {
+            FileOutputStream fos = new FileOutputStream("src/resources/twitterClassNameLists/" + featureTypeForFile + "OwlClassList");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(OwlClassList);
+            oos.close();
+            fos.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static ArrayList<OWLClass> readOwlClassLists(FeatureType featureType) {
+        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
+        String listPath = "src/resources/twitterClassNameLists/";
+
+        try {
+            FileInputStream fis = null;
+
+            switch (featureType) {
+                case RequestHeader:
+                    fis = new FileInputStream(listPath + "RequestHeaderOwlClassList");
+                    break;
+                case ResponseHeader:
+                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
+                    break;
+                case ResponseBody:
+                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
+                    break;
+                case RequestURI:
+                    fis = new FileInputStream(listPath + "RequestURIOwlClassList");
+                    break;
+                case ResponseStatusCode:
+                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
+                    break;
+                case RequestMethod:
+                    fis = new FileInputStream(listPath + "RequestMethodOwlClassList");
+                    break;
+                case RequestAuthToken:
+                    fis = new FileInputStream(listPath + "RequestAuthTokenOwlClassList");
+                    break;
+                default: {
+                }
+            }
+
+            ObjectInputStream ois = new ObjectInputStream(fis);
+
+            URIList = (ArrayList) ois.readObject();
+
+            ois.close();
+            fis.close();
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+
+        } catch (ClassNotFoundException c) {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return null;
+        }
+
+        return URIList;
+    }
+
+    public static void writeDisjointClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
+        String featureTypeForFile = featureType.toString();
+        try {
+            FileOutputStream fos = new FileOutputStream("src/resources/twitterDisjointClassList/" + featureTypeForFile);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(OwlClassList);
+            oos.close();
+            fos.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static ArrayList<OWLClass> readDisjointClassLists(FeatureType featureType) {
+        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
+        String listPath = "src/resources/twitterDisjointClassList/";
+
+        try {
+            FileInputStream fis = null;
+
+            switch (featureType) {
+                case RequestHeader:
+                    fis = new FileInputStream(listPath + "RequestHeader");
+                    break;
+                case ResponseHeader:
+                    fis = new FileInputStream(listPath + "ResponseHeader");
+                    break;
+                case ResponseBody:
+                    fis = new FileInputStream(listPath + "ResponseBody");
+                    break;
+                case RequestURI:
+                    fis = new FileInputStream(listPath + "RequestURI");
+                    break;
+                default: {
+                }
+            }
+
+            ObjectInputStream ois = new ObjectInputStream(fis);
+
+            URIList = (ArrayList<OWLClass>) ((ArrayList) ois.readObject()).stream().distinct().collect(Collectors.toList());
+
+            ois.close();
+            fis.close();
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+
+        } catch (ClassNotFoundException c) {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return null;
+        }
+
+        return URIList;
+    }
+
+    public static void writeDisjointClassListToFiles(){
+        writeDisjointClassListToFile(owlClassToDisjointRequestHeaderList, FeatureType.RequestHeader);
+        writeDisjointClassListToFile(owlClassToDisjointRequestUriList, FeatureType.RequestURI);
+        writeDisjointClassListToFile(owlClassToDisjointResponseHeaderList, FeatureType.ResponseHeader);
+        writeDisjointClassListToFile(owlClassToDisjointResponseBodyList, FeatureType.ResponseBody);
+    }
+
+    public static void createDisjointClassLists(OWLDataFactory factory){
+        for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
+            List<String> n = new LinkedList<String>();
+            for (List<HTTPTransaction> mm : m.getValue().values()) {
+                createDisjointClassList(mm, factory);
+            }
+        }
+
+        writeDisjointClassListToFiles();
+    }
+
 }

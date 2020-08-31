@@ -22,7 +22,7 @@ public class TrainingDataGenerator {
         Options options = new Options();
 
         options.addOption("d", "dataset", true, "Dataset");
-        options.addOption("t", "learningType", true, "Learning Type");
+        options.addOption("l", "learningType", true, "Learning Type");
 
         // Read from CLI input
         CommandLineParser parser = new BasicParser();
@@ -31,41 +31,45 @@ public class TrainingDataGenerator {
         String dataSetTypeInput = "";
         String learningType = "";
 
-        if (cmd.hasOption("d") && cmd.hasOption("t")) {
+        if (cmd.hasOption("d") && cmd.hasOption("l")) {
             dataSetTypeInput = cmd.getOptionValue("d").toLowerCase();
-            learningType = cmd.getOptionValue("t").toLowerCase();
+            learningType = cmd.getOptionValue("l").toLowerCase();
         } else {
             logInvalidInput();
         }
 
-        if (learningType.toLowerCase().contains("dllearner")) {
+        if (learningType.toLowerCase().contains("dll")) {
             switch (dataSetTypeInput) {
                 case "ghtraffic":
                     LOGGER.info("Generating OWL file for GHTraffic");
                     RawJSONToCSVConverterForGHTraffic.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/sub-ghtraffic-preprocessed.csv", "sub-ghtraffic-S-2.0.0.json");
-                    OWLFileGeneratorForGHTraffic.generateOwlFile("ghtraffic-training-owl","sub-ghtraffic-preprocessed");
+                    CSVGeneratorForGHTraffic.csvFileGeneratorWithAttributes("src/resources/sub-ghtraffic-training", "src/resources/sub-ghtraffic-preprocessed");
+                    OWLFileGeneratorForGHTraffic.generateOwlFile("ghtraffic-training","sub-ghtraffic-preprocessed", "sub-ghtraffic-training");
                     break;
                 case "slack":
                     LOGGER.info("Generating OWL file for Slack");
                     RawXMLToCSVConverterForSlack.csvFileWriter(System.getProperty("user.dir") + File.separator + "src/resources/sub-slack-preprocessed.csv", "sub-slack-1.0.0.xml");
-                    OWLFileGeneratorForSlack.generateOwlFile("slack-training-owl","sub-slack-preprocessed");
+                    CSVGeneratorForSlack.csvFileGeneratorWithAttributes("src/resources/sub-slack-training", "src/resources/sub-slack-preprocessed");
+                    OWLFileGeneratorForSlack.generateOwlFile("slack-training","sub-slack-preprocessed","sub-slack-training");
                     break;
                 case "twitter":
                     LOGGER.info("Generating OWL file for Twitter");
                     RawXMLToCSVConverterForTwitter.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/sub-twitter-preprocessed.csv", "sub-twitter-1.0.0.xml");
-                    OWLFileGeneratorForTwitter.generateOwlFile("twitter-training-owl","sub-twitter-preprocessed");
+                    CSVGeneratorForTwitter.csvFileGeneratorWithAttributes("src/resources/sub-twitter-training", "src/resources/sub-twitter-preprocessed");
+                    OWLFileGeneratorForTwitter.generateOwlFile("twitter-training","sub-twitter-preprocessed","sub-twitter-training");
                     break;
                 case "googletasks":
                     LOGGER.info("Generating OWL file for Google Tasks");
                     RawXMLToCSVConverterForGoogleTasks.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/googletasks-preprocessed.csv", "googletasks-1.0.0.xml");
-                    OWLFileGeneratorForGoogleTasks.generateOwlFile("googletasks-training-owl","googletasks-preprocessed");
+                    CSVGeneratorForGoogleTasks.csvFileGeneratorWithAttributes("src/resources/googletasks-training", "src/resources/googletasks-preprocessed");
+                    OWLFileGeneratorForGoogleTasks.generateOwlFile("googletasks-training","googletasks-preprocessed","googletasks-training");
                     break;
                 default: {
                     logInvalidDataType();
                     break;
                 }
             }
-        } else if (learningType.toLowerCase().contains("weka")){
+        } else if (learningType.toLowerCase().contains("abl")){
             switch (dataSetTypeInput) {
                 case "ghtraffic":
                     RawJSONToCSVConverterForGHTraffic.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/ghtraffic-preprocessed.csv", "ghtraffic-S-2.0.0.json");

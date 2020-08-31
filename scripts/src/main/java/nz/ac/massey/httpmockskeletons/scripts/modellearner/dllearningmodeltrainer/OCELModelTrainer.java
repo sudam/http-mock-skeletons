@@ -33,6 +33,7 @@ public class OCELModelTrainer {
     public static String keyInput = ""; // input parameter for Key
     public static String valueInput = ""; // input parameter for Value
     public static String datasetInput = ""; // Google / Slack / GHTraffic / Twitter
+    public static String jsonFileName = ""; // file name of json key value pair list for each dataset
     public static ResponseType ResponseTypeInput; // input parameter for Response Type
     public static List<String> classInstanceList = new ArrayList<String>();
 
@@ -45,8 +46,7 @@ public class OCELModelTrainer {
     }
 
     public static void main(String[] args) throws Exception {
-//        processWithOCEL("GoogleTasks", "", "ResponseHeader_Alt-Svc_quic");
-         processWithOCEL("GHTraffic", "", "ResponseStatusCode_200");
+         processWithOCEL("slack", "", "ResponseBody_ok_false");
     }
 
     public OCELModelTrainer(String datasetInput, String responseTypeInput, String key, String value) {
@@ -55,20 +55,24 @@ public class OCELModelTrainer {
 
         switch (datasetInput) {
             case "googletasks":
-                owlFile = "src/resources/googletasks-training-owl.owl";
+                owlFile = "src/resources/googletasks-training.owl";
                 preprocessedData = "src/resources/googletasks-preprocessed.csv";
+                jsonFileName = "googleHeaderLabels";
                 break;
             case "slack":
-                owlFile = "src/resources/slack-training-owl.owl";
+                owlFile = "src/resources/slack-training.owl";
                 preprocessedData = "src/resources/sub-slack-preprocessed.csv";
+                jsonFileName = "slackHeaderLabels";
                 break;
             case "ghtraffic":
-                owlFile = "src/resources/ghtraffic-training-owl.owl";
+                owlFile = "src/resources/ghtraffic-training.owl";
                 preprocessedData = "src/resources/sub-ghtraffic-preprocessed.csv";
+                jsonFileName = "ghTrafficHeaderLabels";
                 break;
             case "twitter":
-                owlFile = "src/resources/twitter-training-owl.owl";
+                owlFile = "src/resources/twitter-training.owl";
                 preprocessedData = "src/resources/sub-twitter-preprocessed.csv";
+                jsonFileName = "twitterHeaderLabels";
                 break;
             default: {
             }
@@ -130,11 +134,10 @@ public class OCELModelTrainer {
             lp.setPositiveExamples(positiveExamples);
             lp.setNegativeExamples(negativeExamples);
 
+            // create the learning algorithm
             OCEL las = new OCEL(lp, reasoner);
 
             if (positiveExamples.size() > 0 && negativeExamples.size() > 0) {
-                // create the learning algorithm
-                // CELOE las = new CELOE(lp, reasoner);
 
                 las.setMaxExecutionTimeInSeconds(120);
 
@@ -148,11 +151,7 @@ public class OCELModelTrainer {
                 lp.init();
 
                 las.start();
-
-                System.out.println(las.getCurrentlyBestDescription());
-
-                // timer.cancel();
-                // List<? extends EvaluatedDescription> currentlyBestEvaluatedDescriptions = las.getCurrentlyBestEvaluatedDescriptions(1, 1, true);
+                System.out.println("Current Best Description: "+las.getCurrentlyBestDescription());
 
             } else if (positiveExamples.size() == 0) {
                 System.out.println("No positive examples have been set.");
@@ -321,35 +320,6 @@ public class OCELModelTrainer {
 
     public static void addToNegativeExamples(Set<OWLIndividual> negativeExamples, List<HTTPTransaction> mm, OWLDataFactory df, PrefixManager pm) {
         negativeExamples.add(df.getOWLNamedIndividual("T" + mm.get(0).transaction, pm));
-    }
-
-    public static String getDataTypeKeyValueOLD(String classInput) {
-
-        String dataType = "";
-        String key = "";
-        String value = "";
-
-        if (classInput.contains("documentation_url")) {
-            dataType = classInput.split("_")[0];
-            key = "documentation_url";
-            value = classInput.split("_", 4)[3];
-        } else if (StringUtils.countMatches(classInput, "_") > 1) {
-            dataType = classInput.split("_", 3)[0];
-            key = classInput.split("_", 3)[1];
-            value = classInput.split("_", 3)[2];
-        } else if (StringUtils.countMatches(classInput, "_") == 1) {
-            dataType = classInput.split("_", 2)[0];
-            key = "";
-            value = classInput.split("_", 2)[1];
-        }
-
-        if (classInput.contains("message.bot_id")) {
-            dataType = classInput.split("_", 2)[0];
-            key = "message.bot_id";
-            value = classInput.split("_", 4)[3];
-        }
-
-        return dataType + "~" + key + "~" + value;
     }
 
     public static String getRefinedValue(String value) {

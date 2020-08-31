@@ -6,6 +6,12 @@ import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -1025,8 +1031,7 @@ public class Utilities {
         }
 
         String value = jsonObject.get(key) == null ? null : jsonObject.get(key).toString();
-//https://avatars.githubusercontent.com/u/7139661?v=3
-//https://avatars.githubusercontent.com/u/7139661?v=3
+
         if (value.indexOf(",") >= 0) {
             value = "\'" + value + "\'";
         }
@@ -1045,4 +1050,5 @@ public class Utilities {
 
         return value;
     }
+
 }
