@@ -15,9 +15,21 @@ For more details on the construction of these phases, see **Chapter 5** in the t
 
 ## Accessing Experimental Datasets
 
-The different editions of the GHTraffic dataset can be downloaded using: S, M, and L.
+The different datasets for attribute-based learning can be downloaded using: 
 
-## Using Experimental Script
+- [GHTraffic](https://zenodo.org/record/4007589/files/ghtraffic-S-2.0.0.zip)
+- [Twitter](https://zenodo.org/record/4007570/files/twitter-1.0.0.zip)
+- [Google Tasks](https://zenodo.org/record/4007570/files/googletasks-1.0.0.zip)
+- [Slack](https://zenodo.org/record/4007570/files/slack-1.0.0.zip)
+
+The different datasets for description logic learning can be downloaded using:
+
+- [GHTraffic](https://zenodo.org/record/4008239/files/sub-ghtraffic-S-2.0.0.zip)
+- [Twitter](https://zenodo.org/record/4008239/files/sub-twitter-1.0.0.zip)
+- [Google Tasks](https://zenodo.org/record/4007570/files/googletasks-1.0.0.zip)
+- [Slack](https://zenodo.org/record/4008239/files/sub-slack-1.0.0.zip)
+
+## Using Experimental Scripts
 
 We also provide access to the scripts used to generate GHTraffic. Using these scripts, you can modify the configuration properties in the config.properties file in order to create a customised version of the GHTraffic dataset for your own use.
 
@@ -61,3 +73,4 @@ The script analyse.sh analyses each dataset in terms of HTTP request methods, st
 Latex tables per matric will be generated in paper/Metrics folder
 
 **Note that due to the use of random data generation this scripts will produce slightly different datasets at each execution.**
+
