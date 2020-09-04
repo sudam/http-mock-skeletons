@@ -35,31 +35,19 @@ Datasets for performing experiments with description logic learning can be downl
 
 ## Using Experimental Scripts
 
-We also provide access to the scripts used to generate GHTraffic. Using these scripts, you can modify the configuration properties in the config.properties file in order to create a customised version of the GHTraffic dataset for your own use.
+The experimental methodology described above is implemented in Java and is developed using the Maven software project management architecture. We provide access to these scripts, including a pre-configured VirtualBox image, to run the experiments and to reproduce the research results set out in **Chapter 6**.
 
-Scripts can be accessed by cloning the repository, or by downloading the pre-configured VirtualBox image from here.
+Scripts can be accessed by cloning the repository, or by downloading the VirtualBox image from here.
 
 ### Environment SetUp
 
-The following set up is required to use the GHTraffic script by cloning the repository:
+The following set up is required to use the scripts by cloning the repository:
 
-Install openjdk-8-jdk
-
-Install MongoDB 3.4.9
-
-Create data/db folder where Mongo stores data
-
-Download the GHTorrent dump from here
-
-Move the gzipped tar file to /data/db directory and extract (requires nearly 50 GB of memory)
-
-Move all the content in /data/db/dump/github/ to /data/db/github
-
-Start the Mongo server by running the following command:
-
-sudo service mongod start 
-Restore data from the binary database dump to a MongoDB instance by running the following command:
-mongorestore $path-to-data-folder/data/db/github -d github 
+1. Install Java Runtime Environment (JRE) 8 or above
+2. Install Apache Maven 3.5.0 or above
+3. Create scripts/src/resources folder where all raw and training data is stored 
+4. Download the appropriate dataset from the links above, based on the learning type you intend to experiment with
+5. Extract the zipped file and move the dataset file to scripts/src/resources
 
 ### Generating GHTraffic Dataset
 
