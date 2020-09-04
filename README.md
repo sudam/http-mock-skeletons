@@ -59,7 +59,7 @@ The following setup is required in order to use the experimental scripts by clon
 
    **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
 
-   Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL file) will be generated and stored in the resources folder.
+   Depending on the dataset and learning type specified, the training data (e.g., <datasettype>-training.arff or training.owl file) will be generated and stored in the resources folder.
 
 To generate the small edition of GHTraffic, clone the repository into a folder, cd into script folder and run the following command:
 
