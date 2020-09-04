@@ -55,8 +55,9 @@ The following setup is required in order to use the experimental scripts by clon
 
    It requires two arguments: 
 
-   - **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
-   - **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
+   **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
+
+   **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
 
    Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL file) will be generated and stored in the resources folder.
 
