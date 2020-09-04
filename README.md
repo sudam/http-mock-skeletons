@@ -41,7 +41,7 @@ Scripts can be accessed by cloning the repository, or by downloading the Virtual
 
 ### Environment SetUp
 
-The following set up is required to use the scripts by cloning the repository:
+The following setup is required in order to use the experimental scripts by cloning the repository:
 
 1. Install Java Runtime Environment (JRE) 8 or above
 2. Install Apache Maven 3.5.0 or above
@@ -49,9 +49,16 @@ The following set up is required to use the scripts by cloning the repository:
 4. Download the appropriate dataset from the links above, based on the learning type you intend to experiment with
 5. Extract the zipped file and move the dataset file to scripts/src/resources
 
-### Generating GHTraffic Dataset
+### Running Experiments
 
-The script build.sh with options S, M or L can be used to create either edition.
+1. The script **datapreparator.sh** is configured to execute the **Data Preprocessing** and **Data Transformation** phases.
+
+   It requires two arguments: 
+
+   - **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
+   - **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
+
+   Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL file) will be generated and stored in the resources folder.
 
 To generate the small edition of GHTraffic, clone the repository into a folder, cd into script folder and run the following command:
 
