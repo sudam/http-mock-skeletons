@@ -15,14 +15,18 @@ For more details on the construction of these phases, see **Chapter 5** in the t
 
 ## Accessing Experimental Datasets
 
-The different datasets for attribute-based learning can be downloaded using: 
+**Chapter 4** of the thesis details four network traffic datasets (GHTraffic, Twitter, Google Tasks, and Slack) designed to be suitable for reproducible research in service-oriented computing. 
+
+The **small edition of GHTraffic 2.0.0**, **Twitter 1.0.0**, **Google Tasks 1.0.0**, and **Slack 1.0.0** datasets are used to perform experiments with attribute-based learning algorithms. However, description logic learning algorithms have confined their use to learning problems whose knowledge bases range from small to large (to allow loading the entire knowledge bases into the OWL reasoners used in the algorithms for reasoning). The Google Tasks 1.0.0 dataset is a mid-sized and mid-complex dataset that meets the above-mentioned requirement. The other three datasets are however very large and complex, so we use sub-datasets of the originals to do experiments.
+
+Datasets for performing experiments with attribute-based learning can be downloaded using: 
 
 - [GHTraffic](https://zenodo.org/record/4007589/files/ghtraffic-S-2.0.0.zip)
 - [Twitter](https://zenodo.org/record/4007570/files/twitter-1.0.0.zip)
 - [Google Tasks](https://zenodo.org/record/4007570/files/googletasks-1.0.0.zip)
 - [Slack](https://zenodo.org/record/4007570/files/slack-1.0.0.zip)
 
-The different datasets for description logic learning can be downloaded using:
+Datasets for performing experiments with description logic learning can be downloaded using:
 
 - [GHTraffic](https://zenodo.org/record/4008239/files/sub-ghtraffic-S-2.0.0.zip)
 - [Twitter](https://zenodo.org/record/4008239/files/sub-twitter-1.0.0.zip)
