@@ -1,22 +1,14 @@
 package nz.ac.massey.httpmockskeletons.scripts.modellearner.dllearningmodeltrainer;
 
-
 import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction;
 import nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel;
 import nz.ac.massey.httpmockskeletons.scripts.commons.Utilities;
-import nz.ac.massey.httpmockskeletons.scripts.datapreparator.dllearningtrainingdatagenerator.OWLFileGeneratorForGHTraffic;
-import nz.ac.massey.httpmockskeletons.scripts.datapreparator.dllearningtrainingdatagenerator.OWLFileGeneratorForSlack;
-import nz.ac.massey.httpmockskeletons.scripts.datapreparator.dllearningtrainingdatagenerator.OWLFileGeneratorForTwitter;
 import org.apache.commons.lang3.StringUtils;
 import org.dllearner.core.StringRenderer;
 import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,9 +16,10 @@ import static nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction.tra
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.GetJsonKeyByValue;
 
 /**
- * this class allows to check what are the possible target classes
- * to learn
- */
+ * this class allows to check what are the possible target classes to learn
+ *
+ * @author Thilini Bhagya
+ **/
 
 public class CheckTargetClassesToLearn {
     public static String datasetInput = "";
@@ -36,7 +29,6 @@ public class CheckTargetClassesToLearn {
     public static String preprocessedData = "";
     public static String keyInput = ""; // input parameter for Key
     public static String valueInput = ""; // input parameter for Value
-    public static ResponseType ResponseTypeInput;
     public static String ResponseTypeString;
 
     public static List<String> positiveExamplesList = new ArrayList<>();
@@ -55,7 +47,7 @@ public class CheckTargetClassesToLearn {
         ResponseBody
     }
 
-    public static void ValidClassDetails(String dataSetTypeInput) {
+    public static void validClassDetails(String dataSetTypeInput) {
         try {
             datasetInput = dataSetTypeInput.toLowerCase();
 
@@ -97,27 +89,27 @@ public class CheckTargetClassesToLearn {
         switch (datasetInput) {
             case "googletasks":
                 preprocessedData = "src/resources/googletasks-preprocessed.csv";
-                owlClassResponseStatusCodeList = readGoogleTasksOwlClassList(ResponseType.ResponseStatusCode);
-                owlClassResponseBodyList = readGoogleTasksOwlClassList(ResponseType.ResponseBody);
-                owlClassResponseHeaderList = readGoogleTasksOwlClassList(ResponseType.ResponseHeader);
+                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("googletasks-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = HeaderLabel.getOWLClasses("googletasks-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("googletasks-training", ResponseType.ResponseHeader.toString());
                 break;
             case "slack":
                 preprocessedData = "src/resources/sub-slack-preprocessed.csv";
-                owlClassResponseStatusCodeList = readSlackOwlClassList(ResponseType.ResponseStatusCode);
-                owlClassResponseBodyList = readSlackOwlClassList(ResponseType.ResponseBody);
-                owlClassResponseHeaderList = readSlackOwlClassList(ResponseType.ResponseHeader);
+                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("slack-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = HeaderLabel.getOWLClasses("slack-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("slack-training", ResponseType.ResponseHeader.toString());
                 break;
             case "ghtraffic":
                 preprocessedData = "src/resources/sub-ghtraffic-preprocessed.csv";
-                owlClassResponseStatusCodeList = readGHTrafficOwlClassList(ResponseType.ResponseStatusCode);
-                owlClassResponseBodyList = readGHTrafficOwlClassList(ResponseType.ResponseBody);
-                owlClassResponseHeaderList = readGHTrafficOwlClassList(ResponseType.ResponseHeader);
+                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("ghtraffic-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = HeaderLabel.getOWLClasses("ghtraffic-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("ghtraffic-training", ResponseType.ResponseHeader.toString());
                 break;
             case "twitter":
                 preprocessedData = "src/resources/sub-twitter-preprocessed.csv";
-                owlClassResponseStatusCodeList = readTwitterClassLists(ResponseType.ResponseStatusCode);
-                owlClassResponseBodyList = readTwitterClassLists(ResponseType.ResponseBody);
-                owlClassResponseHeaderList = readTwitterClassLists(ResponseType.ResponseHeader);
+                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("twitter-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = HeaderLabel.getOWLClasses("twitter-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("twitter-training", ResponseType.ResponseHeader.toString());
                 break;
             default: {
             }
@@ -336,169 +328,5 @@ public class CheckTargetClassesToLearn {
         for (OWLClass owlClass : owlClassList) {
             owlClassStringList.add(owlClass.toString());
         }
-    }
-
-    public static ArrayList<OWLClass> readGoogleTasksOwlClassList(ResponseType featureType) {
-        ArrayList<OWLClass> ontologyClassList = new ArrayList<>();
-        String listPath = "src/resources/googleClassNameLists/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
-                    break;
-                case ResponseStatusCode:
-                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            ontologyClassList = (ArrayList) ois.readObject();
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return ontologyClassList;
-    }
-
-    public static ArrayList<OWLClass> readGHTrafficOwlClassList(ResponseType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/ghTrafficClassNameLists/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
-                    break;
-                case ResponseStatusCode:
-                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList) ois.readObject();
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
-    }
-
-    public static ArrayList<OWLClass> readSlackOwlClassList(ResponseType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/slackClassNameLists/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
-                    break;
-                case ResponseStatusCode:
-                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList) ois.readObject();
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
-    }
-
-    public static ArrayList<OWLClass> readTwitterClassLists(ResponseType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/twitterClassNameLists/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
-                    break;
-                case ResponseStatusCode:
-                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList) ois.readObject();
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
     }
 }

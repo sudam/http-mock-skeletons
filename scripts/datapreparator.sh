@@ -3,11 +3,11 @@
 START_MESSAGE=""
 END_MESSAGE=""
 
-if [ $3 == -l ] && [ $4 == "abl" ]
+if [ $1 == -l ] && [ $2 == "abl" ]
 then
 START_MESSAGE="WEKA $2"
 END_MESSAGE="END WEKA"
-elif [ $3 == -l ] && [ $4 == "dll" ]
+elif [ $1 == -l ] && [ $2 == "dll" ]
 then
 START_MESSAGE="DLLEARNER $2" 
 END_MESSAGE="END DL"

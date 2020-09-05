@@ -34,7 +34,7 @@ public class OCELModelTester {
     public static OCELModelTrainer.ResponseType ResponseTypeInput; // input parameter for Response Type
     public static List<String> classInstanceList = new ArrayList<String>();
 
-    private static Logger LOGGER = Logger.getLogger(OCELModelTrainer.class);
+    // private static Logger LOGGER = Logger.getLogger(OCELModelTrainer.class);
 
     public enum ResponseType {
         ResponseHeader,
@@ -126,17 +126,16 @@ public class OCELModelTester {
             // System.out.println(negativeExamples);
 
             if(positiveExamples.size() == 0) {
-                LOGGER.warn("No positive examples have been set");
+                System.out.println("No positive examples have been set");
             }
 
             if(negativeExamples.size() == 0) {
-                LOGGER.warn("No negative examples have been set");
+                System.out.println("No negative examples have been set");
             }
 
             lp.init();
 
             // create the learning algorithm
-            // CELOE las = new CELOE(lp, reasoner);
             OCEL las = new OCEL(lp, reasoner);
 
             las.setMaxExecutionTimeInSeconds(120);
@@ -149,11 +148,6 @@ public class OCELModelTester {
 
             // run cross validation
             new KFoldCrossValidation(las, lp, reasoner, 2, false);
-
-            System.out.println(las.getCurrentlyBestDescription());
-
-            // timer.cancel();
-            // List<? extends EvaluatedDescription> currentlyBestEvaluatedDescriptions = las.getCurrentlyBestEvaluatedDescriptions(1, 1, true);
 
         } catch (Exception e){
             // LOGGER.info(e.getMessage());

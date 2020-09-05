@@ -7,36 +7,30 @@ import nz.ac.massey.httpmockskeletons.scripts.commons.URITokeniser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
-import static nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel.*;
 
 /**
- * Script to generate OWL Ontology for GHTraffic
+ * Generate OWL Ontology for GHTraffic
  *
- * @author thilini bhagya
- */
+ * @author Thilini Bhagya
+ **/
 
 public class OWLFileGeneratorForGHTraffic {
     static BufferedReader br = null;
-    //create a central object to manage the ontology
     static OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
     static OWLOntology ontology;
     static OWLIndividual T = null;
     static Logger LOGGER = Logging.getLogger(OWLFileGeneratorForGHTraffic.class);
     static OWLClass Transaction;
     static OWLSubClassOfAxiom OWLSubClass;
-    static JSONObject ghTrafficHeaderLabelsObject = new JSONObject();
     static JSONArray ghTrafficHeaderLabelsArray = new JSONArray();
-    static FileWriter ghTrafficHeaderLabelsJson;
+    static List<String> lastIdList = new ArrayList<>();
 
     public enum FeatureType {
         RequestMethod,
@@ -66,8 +60,6 @@ public class OWLFileGeneratorForGHTraffic {
 
     public static void generateOwlFile(String owlFileName, String SubDataFileName, String subTrainingFileName) throws Exception {
         try {
-            LOGGER.info("Generating OWL file");
-
             // IRI stands for Internationalised Resource Identifier
             // Provides link to the ontology on the web, every class, every property, every individual has one
             IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
@@ -78,22 +70,9 @@ public class OWLFileGeneratorForGHTraffic {
             // Create ontology building blocks
             OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 
-            // createOwlClassLists(IOR, factory, subTrainingFileName);
+            createOwlClassLists(IOR, factory, subTrainingFileName);
 
-            // Read Owl Class lists from associated files
-            RequestMethodOwlClassList = readFileOwlClassList(FeatureType.RequestMethod);
-            RequestHeaderOwlClassList = readFileOwlClassList(FeatureType.RequestHeader);
-            RequestBodyOwlClassList = readFileOwlClassList(FeatureType.RequestBody);
-            ResponseHeaderOwlClassList = readFileOwlClassList(FeatureType.ResponseHeader);
-            ResponseBodyOwlClassList = readFileOwlClassList(FeatureType.ResponseBody);
-            ResponseStatusCodeOwlClassList = readFileOwlClassList(FeatureType.ResponseStatusCode);
-            RequestUriOwlClassList = readFileOwlClassList(FeatureType.RequestURI);
-
-            // Read Disjoint Owl Class lists from associated files
-            OwlClassToDisjointRequestHeaderList = readFileDisjointClassList(FeatureType.RequestHeader);
-            OwlClassToDisjointRequestUriList = readFileDisjointClassList(FeatureType.RequestURI);
-            OwlClassToDisjointResponseHeaderList = readFileDisjointClassList(FeatureType.ResponseHeader);
-            OwlClassToDisjointResponseBodyList = readFileDisjointClassList(FeatureType.ResponseBody);
+            LOGGER.info("Generating OWL file");
 
             // Object properties
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty(IRI.create(IOR + "#isPrecededBy"));
@@ -120,21 +99,7 @@ public class OWLFileGeneratorForGHTraffic {
 
             HTTPTransaction.read("src/resources/" + SubDataFileName + ".csv");
 
-            // Create disjoint class lists
-            // createDisjointClassLists(factory);
-
-            List<String> lastIdList = new ArrayList<>();
-            List<String> resourceIdList = new ArrayList<>();
-
-            for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
-                List<String> n = new LinkedList<String>();
-
-                for (List<HTTPTransaction> mm : m.getValue().values()) {
-                    n.add(mm.get(0).transaction);
-                }
-
-                lastIdList.add(n.get(n.size() - 1));
-            }
+            preprocess(factory);
 
             for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
                 List<String> n = new LinkedList<String>();
@@ -1273,33 +1238,25 @@ public class OWLFileGeneratorForGHTraffic {
         return key + "~" + value;
     }
 
-    public static void createOwlClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, String subTrainingFileName) throws IOException {
+    public static void createOwlClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, String[] feature, List<String> valueLinesList) throws IOException {
+        LOGGER.info("Creating OWL Class lists for " + featureType);
+
         // set index of first and last columns to loop through each feature type
         int colStart = getColumnNumber(featureType, "start");
         int colEnd = getColumnNumber(featureType, "end");
 
-        String csvFile = "src/resources/" + subTrainingFileName + ".csv";
-        BufferedReader br = null;
-        String line = "";
-
-        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
-
-        br = new BufferedReader(new FileReader(csvFile));
-        line = br.readLine();
-        String[] headerText = line.split(cvsSplitBy);
-
-        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
-
         for (int i = colStart; i <= colEnd; i++) {
-            List<String> distinctFeatureValueList = getDistinctFeatureValuesFromCSV(i, headerText, valueLinesList);
+
+            List<String> distinctFeatureValueList = getDistinctFeatureValuesFromCSV(i, feature, valueLinesList);
+
             for (String headerItem : distinctFeatureValueList) {
 
-                if (distinctFeatureValueList.size() >= 10) { // don't add classes to the list those who have 10 or more distinct values
+                if (distinctFeatureValueList.size() >= 9) { // don't add classes to the list those who have 8 or more distinct values
+                } else if (headerItem.contains("ResponseBody_milestone.html_url")){
                 } else {
                     if (headerItem.indexOf(" ") >= 0 || headerItem.contains(",") || headerItem.contains(";") || headerItem.contains("=") || headerItem.contains("/")) {
                         headerItem = "\'" + headerItem + "\'";
                     }
-
                     switch (featureType) {
                         case RequestMethod:
                             RequestMethodOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
@@ -1326,39 +1283,6 @@ public class OWLFileGeneratorForGHTraffic {
                         }
                     }
                 }
-            }
-        }
-        // Write OWL Class lists for respective feature into files
-        switch (featureType) {
-            case RequestMethod:
-                writeOwlClassListToFile(RequestMethodOwlClassList, FeatureType.RequestMethod);
-                LOGGER.info("RequestMethod class list created");
-                break;
-            case RequestHeader:
-                writeOwlClassListToFile(RequestHeaderOwlClassList, FeatureType.RequestHeader);
-                LOGGER.info("RequestHeader class list created");
-                break;
-            case RequestBody:
-                writeOwlClassListToFile(RequestBodyOwlClassList, FeatureType.RequestBody);
-                LOGGER.info("RequestBody class list created");
-                break;
-            case RequestURI:
-                writeOwlClassListToFile(RequestUriOwlClassList, FeatureType.RequestURI);
-                LOGGER.info("RequestURI class list created");
-                break;
-            case ResponseHeader:
-                writeOwlClassListToFile(ResponseHeaderOwlClassList, FeatureType.ResponseHeader);
-                LOGGER.info("ResponseHeader class list created");
-                break;
-            case ResponseBody:
-                writeOwlClassListToFile(ResponseBodyOwlClassList, FeatureType.ResponseBody);
-                LOGGER.info("ResponseBody class list created");
-                break;
-            case ResponseStatusCode:
-                writeOwlClassListToFile(ResponseStatusCodeOwlClassList, FeatureType.ResponseStatusCode);
-                LOGGER.info("ResponseStatusCode class list created");
-                break;
-            default: {
             }
         }
     }
@@ -1431,138 +1355,41 @@ public class OWLFileGeneratorForGHTraffic {
         return rhConnectionFinalList;
     }
 
-    public static void writeOwlClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
-        String featureTypeForFile = featureType.toString();
-        try {
-            FileOutputStream fos = new FileOutputStream("src/resources/ghTrafficClassNameLists/" + featureTypeForFile + "OwlClassList");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(OwlClassList);
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
-    public static ArrayList<OWLClass> readFileOwlClassList(FeatureType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/ghTrafficClassNameLists/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case RequestHeader:
-                    fis = new FileInputStream(listPath + "RequestHeaderOwlClassList");
-                    break;
-                case RequestBody:
-                    fis = new FileInputStream(listPath + "RequestBodyOwlClassList");
-                    break;
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
-                    break;
-                case RequestURI:
-                    fis = new FileInputStream(listPath + "RequestURIOwlClassList");
-                    break;
-                case ResponseStatusCode:
-                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
-                    break;
-                case RequestMethod:
-                    fis = new FileInputStream(listPath + "RequestMethodOwlClassList");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList) ois.readObject();
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
-    }
-
-    public static ArrayList<OWLClass> readFileDisjointClassList(FeatureType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/gHTrafficDisjointClassList/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case RequestHeader:
-                    fis = new FileInputStream(listPath + "RequestHeader");
-                    break;
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeader");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBody");
-                    break;
-                case RequestURI:
-                    fis = new FileInputStream(listPath + "RequestURI");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList<OWLClass>) ((ArrayList) ois.readObject()).stream().distinct().collect(Collectors.toList());
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
-    }
-
     public static void createOwlClassLists(IRI IOR, OWLDataFactory factory, String subTrainingFileName) throws IOException {
-        createOwlClassList(IOR, factory, FeatureType.RequestMethod, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.RequestHeader, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.RequestBody, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.RequestURI, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.ResponseHeader, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.ResponseBody, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.ResponseStatusCode, subTrainingFileName);
+
+        String csvFile = "src/resources/" + subTrainingFileName + ".csv";
+        BufferedReader br = null;
+        String line = "";
+
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+
+        br = new BufferedReader(new FileReader(csvFile));
+        line = br.readLine();
+        String[] feature = line.split(cvsSplitBy);
+
+        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
+
+        createOwlClassList(IOR, factory, FeatureType.RequestMethod, feature, valueLinesList);
+        createOwlClassList(IOR, factory, FeatureType.RequestHeader, feature, valueLinesList);
+        createOwlClassList(IOR, factory, FeatureType.RequestBody, feature, valueLinesList);
+        createOwlClassList(IOR, factory, FeatureType.RequestURI, feature, valueLinesList);
+        createOwlClassList(IOR, factory, FeatureType.ResponseHeader, feature, valueLinesList);
+        createOwlClassList(IOR, factory, FeatureType.ResponseBody, feature, valueLinesList);
+        createOwlClassList(IOR, factory, FeatureType.ResponseStatusCode, feature, valueLinesList);
     }
 
-    public static void createDisjointClassLists(OWLDataFactory factory){
+    public static void preprocess(OWLDataFactory factory) {
         for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
             List<String> n = new LinkedList<String>();
             for (List<HTTPTransaction> mm : m.getValue().values()) {
+                n.add(mm.get(0).transaction);
+                // create disjoint class list
                 createDisjointClassList(mm, factory);
             }
-        }
 
-        writeDisjointClassListToFile(OwlClassToDisjointRequestHeaderList, FeatureType.RequestHeader);
-        writeDisjointClassListToFile(OwlClassToDisjointRequestUriList, FeatureType.RequestURI);
-        writeDisjointClassListToFile(OwlClassToDisjointResponseHeaderList, FeatureType.ResponseHeader);
-        writeDisjointClassListToFile(OwlClassToDisjointResponseBodyList, FeatureType.ResponseBody);
+            // get the list of transaction ids happened lastly in each resource
+            lastIdList.add(n.get(n.size() - 1));
+        }
     }
 
     public static void createDisjointClassList(List<HTTPTransaction> mm, OWLDataFactory factory) {
@@ -1679,19 +1506,6 @@ public class OWLFileGeneratorForGHTraffic {
                     }
                 }
             }
-        }
-    }
-
-    public static void writeDisjointClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
-        String featureTypeForFile = featureType.toString();
-        try {
-            FileOutputStream fos = new FileOutputStream("src/resources/gHTrafficDisjointClassList/" + featureTypeForFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(OwlClassList);
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
     }
 }

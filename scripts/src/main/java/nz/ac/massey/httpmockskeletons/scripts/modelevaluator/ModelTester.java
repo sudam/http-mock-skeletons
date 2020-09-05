@@ -1,12 +1,10 @@
 package nz.ac.massey.httpmockskeletons.scripts.modelevaluator;
 
-import nz.ac.massey.httpmockskeletons.scripts.Logging;
-import nz.ac.massey.httpmockskeletons.scripts.commons.CheckValidClasses;
+import nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearningmodeltrainer.CheckTargetAttributesToLearn;
+import nz.ac.massey.httpmockskeletons.scripts.modellearner.dllearningmodeltrainer.CheckTargetClassesToLearn;
 import nz.ac.massey.httpmockskeletons.scripts.modelevaluator.attributebasedlearningmodeltester.C45ModelTester;
 import nz.ac.massey.httpmockskeletons.scripts.modelevaluator.attributebasedlearningmodeltester.PARTModelTester;
 import nz.ac.massey.httpmockskeletons.scripts.modelevaluator.attributebasedlearningmodeltester.RIPPERModelTester;
-import nz.ac.massey.httpmockskeletons.scripts.commons.CheckAttributesDetails;
-import nz.ac.massey.httpmockskeletons.scripts.modellearner.ModelTrainer;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.ArrayUtils;
 
@@ -26,13 +24,10 @@ public class ModelTester {
 
     public static int indexToLearn;
     public static String dataFileName;
-
     public static String datasetInput = "";
     public static String algorithmInput = "";
     public static String indexInput = "";
     public static String classNameInput = "";
-
-    static org.apache.log4j.Logger LOGGER = Logging.getLogger(ModelTester.class);
 
     public ModelTester(String datasetInput) throws Exception {
         // Set file names to variables of each dataset type
@@ -62,7 +57,8 @@ public class ModelTester {
         options.addOption("a", "algorithm", true, "Algorithm");
         options.addOption("i", "index", true, "Index");
         options.addOption("c", "className", true, "Class Name");
-        options.addOption("key", "checkAttributeDetails", true, "Check Attribute Details");
+        options.addOption("ilist", "checkAttributeDetails", true, "Check Attribute Details");
+        options.addOption("clist", "checkValidClasses", true, "Check Valid Classes");
 
         try {
             // Read from CLI input
@@ -104,24 +100,24 @@ public class ModelTester {
 
                 processWithOCEL(datasetInput, algorithmInput, classNameInput);
 
-            } else if (cmd.hasOption("key")) {
+            } else if (cmd.hasOption("ilist")) {
                 ModelTester modelTester = new ModelTester(datasetInput);
-                LOGGER.info("Attribute Details " + datasetInput);
-                CheckAttributesDetails.AttributeDetails(args, options);
+                System.out.println("Attribute Details " + datasetInput);
+                CheckTargetAttributesToLearn.AttributeDetails(args, options);
 
-            } else if (cmd.hasOption("class")) { // Check valid classes
+            } else if (cmd.hasOption("clist")) { // Check valid classes
 
-                datasetInput = cmd.getOptionValue("class").toString().toLowerCase();
+                datasetInput = cmd.getOptionValue("clist").toString().toLowerCase();
                 ModelTester modelTester = new ModelTester(datasetInput);
                 System.out.println("Valid Classes for " + datasetInput);
-                CheckValidClasses.ValidClassDetails(datasetInput);
+                CheckTargetClassesToLearn.validClassDetails(datasetInput);
 
             } else {
-                LOGGER.warn("Invalid Arguments!");
+                System.out.println("Invalid Arguments!");
             }
 
         } catch (Exception e) {
-            LOGGER.warn(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 }

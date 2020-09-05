@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
+import java.io.File;
 import java.util.*;
 
 public class HeaderLabel {
@@ -222,4 +223,40 @@ public class HeaderLabel {
         return item;
     }
 
+    public static List<OWLClass> getOWLClasses(String owlFileName, String responseType) throws OWLOntologyCreationException {
+
+        OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+        File file = new File("src/resources/" + owlFileName + ".owl");
+        OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+
+        List<OWLClass> owlClassResponseHeaderList = new ArrayList<>();
+        List<OWLClass> owlClassResponseStatusCodeList = new ArrayList<>();
+        List<OWLClass> owlClassResponseBodyList = new ArrayList<>();
+
+        Set<OWLClass> owlClassSet = ontology.getClassesInSignature();
+
+        for(OWLClass owlClass : owlClassSet){
+            String response = owlClass.toString().split("#")[1].split("_")[0];
+            if(response.equals("ResponseHeader")){
+                owlClassResponseHeaderList.add(owlClass);
+            } else if (response.equals("ResponseStatusCode")){
+                owlClassResponseStatusCodeList.add(owlClass);
+            } else if (response.equals("ResponseBody")){
+                owlClassResponseBodyList.add(owlClass);
+            }
+        }
+
+        switch (responseType){
+            case "ResponseHeader" :
+                return owlClassResponseHeaderList;
+            case "ResponseStatusCode" :
+                return owlClassResponseStatusCodeList;
+            case "ResponseBody" :
+                return owlClassResponseBodyList;
+            default:{
+            }
+        }
+
+        return null;
+    }
 }

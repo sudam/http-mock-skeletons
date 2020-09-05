@@ -2,32 +2,27 @@ package nz.ac.massey.httpmockskeletons.scripts.datapreparator.dllearningtraining
 
 import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction;
-import nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel;
 import nz.ac.massey.httpmockskeletons.scripts.commons.Utilities;
 import nz.ac.massey.httpmockskeletons.scripts.commons.URITokeniser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
-import static nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel.*;
 
 /**
- * this class allows to check what are the attributes and their indexes
- * for selecting which attribute to learn and which to remove
- */
+ * Generate OWL Ontology for Google Tasks
+ *
+ * @author Thilini Bhagya
+ **/
 
 public class OWLFileGeneratorForGoogleTasks {
     static BufferedReader br = null;
-    //create a central object to manage the ontology
     static OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
     static OWLOntology ontology;
     static OWLIndividual T = null;
@@ -35,6 +30,7 @@ public class OWLFileGeneratorForGoogleTasks {
     static OWLClass Transaction;
     static OWLSubClassOfAxiom OWLSubClass;
     static JSONArray googleHeaderLabelsArray = new JSONArray();
+    static List<String> lastIdList = new ArrayList<>();
 
     public enum FeatureType {
         RequestMethod,
@@ -46,21 +42,19 @@ public class OWLFileGeneratorForGoogleTasks {
         ResponseBody
     }
 
-    public static List<OWLClass> RequestMethodOwlClassList = new ArrayList<OWLClass>();
-    public static List<OWLClass> RequestHeaderOwlClassList = new ArrayList<OWLClass>();
-    public static List<OWLClass> RequestUriOwlClassList = new ArrayList<OWLClass>();
-    public static List<OWLClass> RequestAuthTokenOwlClassList = new ArrayList<OWLClass>();
-    public static List<OWLClass> ResponseHeaderOwlClassList = new ArrayList<OWLClass>();
-    public static List<OWLClass> ResponseStatusCodeOwlClassList = new ArrayList<OWLClass>();
-    public static List<OWLClass> ResponseBodyOwlClassList = new ArrayList<OWLClass>();
+    public static List<OWLClass> RequestMethodOwlClassList = new ArrayList<>();
+    public static List<OWLClass> RequestHeaderOwlClassList = new ArrayList<>();
+    public static List<OWLClass> RequestUriOwlClassList = new ArrayList<>();
+    public static List<OWLClass> RequestAuthTokenOwlClassList = new ArrayList<>();
+    public static List<OWLClass> ResponseHeaderOwlClassList = new ArrayList<>();
+    public static List<OWLClass> ResponseStatusCodeOwlClassList = new ArrayList<>();
+    public static List<OWLClass> ResponseBodyOwlClassList = new ArrayList<>();
 
-    public static List<OWLClass> owlClassToDisjointRequestHeaderList = new ArrayList<OWLClass>();
-    public static List<OWLClass> owlClassToDisjointResponseHeaderList = new ArrayList<OWLClass>();
-    public static List<OWLClass> owlClassToDisjointResponseBodyList = new ArrayList<OWLClass>();
+    public static List<OWLClass> owlClassToDisjointRequestHeaderList = new ArrayList<>();
+    public static List<OWLClass> owlClassToDisjointResponseHeaderList = new ArrayList<>();
+    public static List<OWLClass> owlClassToDisjointResponseBodyList = new ArrayList<>();
 
-    public static void generateOwlFile(String owlFileName, String subDataFileName) throws Exception {
-        LOGGER.info("Generating OWL file");
-
+    public static void generateOwlFile(String owlFileName, String subDataFileName, String trainingFileName) throws Exception {
         try {
             //IRI stands for Internationalised Resource Identifier
             //provides link to the ontology on the web, every class, every property, every individual has one
@@ -69,17 +63,13 @@ public class OWLFileGeneratorForGoogleTasks {
             //ask manager to create a new, empty ontology
             ontology = manager.createOntology(IOR);
 
-            //to create ontology building blocks
+            // to create ontology building blocks
             OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 
-            RequestMethodOwlClassList = getGoogleOwlClassList(factory, ontology, manager, IOR, "RequestMethod");
-            RequestHeaderOwlClassList = getGoogleOwlClassList(factory, ontology, manager, IOR, "RequestHeader");
-            ResponseHeaderOwlClassList = getGoogleOwlClassList(factory, ontology, manager, IOR, "ResponseHeader");
-            ResponseStatusCodeOwlClassList = getGoogleOwlClassList(factory, ontology, manager, IOR, "ResponseStatusCode");
-            ResponseBodyOwlClassList = getGoogleOwlClassList(factory, ontology, manager, IOR, "ResponseBody");
-            RequestUriOwlClassList = getGoogleOwlClassList(factory, ontology, manager, IOR, "RequestURI");
+            // create owl class lists to files
+            createOwlClassLists(IOR, factory, trainingFileName);
 
-            // OBJECT PROPERTIES
+            // object properties
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty((IRI.create(IOR + "#isPrecededBy")));
             OWLTransitiveObjectPropertyAxiom transitive = factory.getOWLTransitiveObjectPropertyAxiom(isPrecededBy);
             AddAxiom addAxiomChangeTransitive = new AddAxiom(ontology, transitive);
@@ -104,11 +94,9 @@ public class OWLFileGeneratorForGoogleTasks {
 
             HTTPTransaction.read("src/resources/" + subDataFileName + ".csv");
 
-            List<String> lastIdList = new ArrayList<>();
-
-            // CREATE LIST OF LAST ID'S OF EACH TRANSACTION
+            // get the list of transaction ids happened lastly in each resource
             for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
-                List<String> n = new LinkedList<String>();
+                List<String> n = new LinkedList<>();
 
                 for (List<HTTPTransaction> mm : m.getValue().values()) {
                     n.add(mm.get(0).transaction);
@@ -117,22 +105,18 @@ public class OWLFileGeneratorForGoogleTasks {
                 lastIdList.add(n.get(n.size() - 1));
             }
 
-            // CREATE DISJOINT CLASS LISTS
-            for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
-                List<String> n = new LinkedList<String>();
-                for (List<HTTPTransaction> mm : m.getValue().values()) {
-                    CreateDisjointClassList(mm, factory);
-                }
-            }
+            // create disjoint class lists
+            createDisjointClassList(factory);
 
-            //
+            LOGGER.info("Generating OWL file");
+
             for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
-                List<String> n = new LinkedList<String>();
+                List<String> n = new LinkedList<>();
                 for (List<HTTPTransaction> mm : m.getValue().values()) {
 
                     T = factory.getOWLNamedIndividual(IRI.create(IOR + "#T" + mm.get(0).transaction));
 
-                    // CHECK PRECEDING
+                    // check preceding
                     n.add(mm.get(0).transaction);
                     if (n.size() > 1) {
                         int a = n.size() - 2;
@@ -149,35 +133,34 @@ public class OWLFileGeneratorForGoogleTasks {
                     }
 
                     if (lastIdList.contains(mm.get(0).transaction)) {
-                        SpecifyExamples(mm, factory);
+                        specifyExamples(mm, factory);
                     } else {
-                        SpecifyIndividuals(mm, factory);
+                        specifyIndividuals(mm, factory);
                     }
                 }
             }
 
-            // WriteToJson(); // has already created. don't populate again!
-
-            // SAVE IN RDF/XML FORMAT
+            // save in rdf/xml format
             File fileOut = new File("src/resources/" + owlFileName + ".owl");
 
             manager.saveOntology(ontology, new FileOutputStream(fileOut));
 
-        } catch (OWLOntologyCreationException x) {
-            LOGGER.warn("Exception writing details to log ", x);
-        } finally {
+            LOGGER.info("OWL File Created");
 
+        } catch (OWLOntologyCreationException x) {
+            LOGGER.warn(x);
+        } finally {
             if (br != null) {
                 try {
                     br.close();
                 } catch (IOException x) {
-                    LOGGER.warn("Exception writing details to log ", x);
+                    LOGGER.warn(x);
                 }
             }
         }
     }
 
-    public static String RefineValue(String value) {
+    public static String refineValue(String value) {
         if (value.contains(";") || value.contains("=") || value.contains(" ") || value.contains("/") || value.contains("@")) {
             value = "\'" + value + "\'";
             value = value.replace(" ", "");
@@ -193,7 +176,7 @@ public class OWLFileGeneratorForGoogleTasks {
         return value;
     }
 
-    public static String RefineValueGoogle(String value) {
+    public static String refineValueGoogle(String value) {
         if (value.contains("application/json")) {
             value = "json";
         }
@@ -452,11 +435,10 @@ public class OWLFileGeneratorForGoogleTasks {
         return false;
     }
 
-    public static void SpecifyIndividuals(List<HTTPTransaction> mm, OWLDataFactory factory) {
+    public static void specifyIndividuals(List<HTTPTransaction> mm, OWLDataFactory factory) {
 
         IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
         String refinedValue = "";
-        String refinedValueForLabel = "";
 
         Transaction = factory.getOWLClass(IRI.create(IOR + "#Transaction"));
 
@@ -465,14 +447,14 @@ public class OWLFileGeneratorForGoogleTasks {
             String value = owlClass.toString().split("#")[1].split("_")[1].split(">")[0];
 
             if (isFeatureContain(mm, key, value, FeatureType.RequestMethod)) {
-                refinedValue = RefineValue(value);
+                refinedValue = refineValue(value);
                 String finalString = ("#" + key + "_" + refinedValue).toString().replace("\"", "");
 
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
 
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                /////// DISJOINT
+                // add disjoint classes to ontology
                 String firstKey = RequestMethodOwlClassList.get(0).toString().split("#")[1].split("_")[0];
                 Set<OWLClass> c1 = new HashSet<OWLClass>();
 
@@ -486,7 +468,8 @@ public class OWLFileGeneratorForGoogleTasks {
                     OWLDisjointClassesAxiom disjointClassesAxiom = factory.getOWLDisjointClassesAxiom(c1);
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
-                /////// DISJOINT END
+
+                // add disjoint classes - end
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -494,7 +477,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -521,23 +504,19 @@ public class OWLFileGeneratorForGoogleTasks {
             }
 
             if (isFeatureContain(mm, key, value, FeatureType.RequestHeader)) {
-                refinedValue = RefineValueGoogle(value);
-                refinedValueForLabel = RefineValue(value);
+                refinedValue = refineValueGoogle(value);
 
                 String finalString = ("#RequestHeader_" + key + "_" + refinedValue).toString().replace("\"", "");
 
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                //////// ADD DISJOINT CLASSES TO ONTOLOGY
-
-                OWLDisjointClassesAxiom disjointClassesAxiom = DisjointFeature(factory, key, owlClassToDisjointRequestHeaderList.stream().distinct().collect(Collectors.toList()));
+                // add disjoint classes to ontology
+                OWLDisjointClassesAxiom disjointClassesAxiom = disjointFeature(factory, key, owlClassToDisjointRequestHeaderList.stream().distinct().collect(Collectors.toList()));
 
                 if (disjointClassesAxiom != null) {
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
-
-                ////////
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -545,7 +524,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -554,7 +533,7 @@ public class OWLFileGeneratorForGoogleTasks {
             String value = owlClass.toString().split("#")[1].split("_", 2)[1].split(">")[0];
 
             if (isFeatureContain(mm, key, value, FeatureType.RequestURI)) {
-                refinedValue = RefineValue(value);
+                refinedValue = refineValue(value);
 
                 String finalString = ("#" + key + "_" + refinedValue).toString().replace("\"", "");
 
@@ -567,7 +546,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -588,7 +567,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -607,22 +586,22 @@ public class OWLFileGeneratorForGoogleTasks {
             }
 
             if (isFeatureContain(mm, key, value, FeatureType.ResponseHeader)) {
-                refinedValue = RefineValueGoogle(value);
+                refinedValue = refineValueGoogle(value);
 
                 String finalString = ("#ResponseHeader_" + key + "_" + refinedValue).toString().replace("\"", "");
 
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                //////// ADD DISJOINT CLASSES TO ONTOLOGY
+                // add disjoint classes to ontology
 
-                OWLDisjointClassesAxiom disjointClassesAxiom = DisjointFeature(factory, key, owlClassToDisjointResponseHeaderList.stream().distinct().collect(Collectors.toList()));
+                OWLDisjointClassesAxiom disjointClassesAxiom = disjointFeature(factory, key, owlClassToDisjointResponseHeaderList.stream().distinct().collect(Collectors.toList()));
 
                 if (disjointClassesAxiom != null) {
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
 
-                ////////
+                // add disjoint classes - end
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -630,7 +609,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
                 googleHeaderLabelsArray.add(refinedValue + ":" + value);
             }
         }
@@ -645,7 +624,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                /////// DISJOINT
+                // add disjoint classes to ontology
                 String firstKey = ResponseStatusCodeOwlClassList.get(0).toString().split("#")[1].split("_")[0];
                 Set<OWLClass> c1 = new HashSet<OWLClass>();
 
@@ -659,7 +638,7 @@ public class OWLFileGeneratorForGoogleTasks {
                     OWLDisjointClassesAxiom disjointClassesAxiom = factory.getOWLDisjointClassesAxiom(c1);
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
-                /////// DISJOINT END
+                // add disjoint classes - end
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -667,7 +646,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
                 googleHeaderLabelsArray.add(refinedValue + ":" + value);
             }
         }
@@ -677,7 +656,7 @@ public class OWLFileGeneratorForGoogleTasks {
             String value = owlClass.toString().split("#", 2)[1].split("_", 3)[2].split(">")[0];
 
             if (isFeatureContain(mm, key, value, FeatureType.ResponseBody)) {
-                refinedValue = RefineValueGoogle(value);
+                refinedValue = refineValueGoogle(value);
 
                 if (refinedValue.contains("#")) {
                     refinedValue = refinedValue.split("#")[1];
@@ -688,15 +667,15 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                //////// ADD DISJOINT CLASSES TO ONTOLOGY
+                // add disjoint classes to ontology
 
-                OWLDisjointClassesAxiom disjointClassesAxiom = DisjointFeature(factory, key, owlClassToDisjointResponseBodyList.stream().distinct().collect(Collectors.toList()));
+                OWLDisjointClassesAxiom disjointClassesAxiom = disjointFeature(factory, key, owlClassToDisjointResponseBodyList.stream().distinct().collect(Collectors.toList()));
 
                 if (disjointClassesAxiom != null) {
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
 
-                ////////
+                // add disjoint classes - end
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -704,17 +683,16 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
                 googleHeaderLabelsArray.add(refinedValue + ":" + value);
             }
         }
     }
 
-    public static void SpecifyExamples(List<HTTPTransaction> mm, OWLDataFactory factory) {
+    public static void specifyExamples(List<HTTPTransaction> mm, OWLDataFactory factory) {
 
         IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
         String refinedValue = "";
-        String refinedValueForLabel = "";
 
         Transaction = factory.getOWLClass(IRI.create(IOR + "#Transaction"));
 
@@ -723,14 +701,14 @@ public class OWLFileGeneratorForGoogleTasks {
             String value = owlClass.toString().split("#")[1].split("_")[1].split(">")[0];
 
             if (isFeatureContain(mm, key, value, FeatureType.RequestMethod)) {
-                refinedValue = RefineValue(value);
+                refinedValue = refineValue(value);
                 String finalString = ("#" + key + "_" + refinedValue).toString().replace("\"", "");
 
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
 
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                /////// DISJOINT
+                // add disjoint classes to ontology
                 String firstKey = RequestMethodOwlClassList.get(0).toString().split("#")[1].split("_")[0];
                 Set<OWLClass> c1 = new HashSet<OWLClass>();
 
@@ -744,7 +722,8 @@ public class OWLFileGeneratorForGoogleTasks {
                     OWLDisjointClassesAxiom disjointClassesAxiom = factory.getOWLDisjointClassesAxiom(c1);
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
-                /////// DISJOINT END
+
+                // add disjoint classes - end
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -752,7 +731,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -779,23 +758,19 @@ public class OWLFileGeneratorForGoogleTasks {
             }
 
             if (isFeatureContain(mm, key, value, FeatureType.RequestHeader)) {
-                refinedValue = RefineValueGoogle(value);
-                refinedValueForLabel = RefineValue(value);
+                refinedValue = refineValueGoogle(value);
 
                 String finalString = ("#RequestHeader_" + key + "_" + refinedValue).toString().replace("\"", "");
 
                 OWLClass owlClassToAdd = factory.getOWLClass(IRI.create(IOR + finalString));
                 OWLSubClass = factory.getOWLSubClassOfAxiom(owlClassToAdd, Transaction);
 
-                //////// ADD DISJOINT CLASSES TO ONTOLOGY
-
-                OWLDisjointClassesAxiom disjointClassesAxiom = DisjointFeature(factory, key, owlClassToDisjointRequestHeaderList.stream().distinct().collect(Collectors.toList()));
+                // add disjoint classes to ontology
+                OWLDisjointClassesAxiom disjointClassesAxiom = disjointFeature(factory, key, owlClassToDisjointRequestHeaderList.stream().distinct().collect(Collectors.toList()));
 
                 if (disjointClassesAxiom != null) {
                     manager.addAxiom(ontology, disjointClassesAxiom);
                 }
-
-                ////////
 
                 AddAxiom addAxiomChangeOwlSubClass = new AddAxiom(ontology, OWLSubClass);
                 manager.applyChange(addAxiomChangeOwlSubClass);
@@ -803,7 +778,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -812,7 +787,7 @@ public class OWLFileGeneratorForGoogleTasks {
             String value = owlClass.toString().split("#")[1].split("_", 2)[1].split(">")[0];
 
             if (isFeatureContain(mm, key, value, FeatureType.RequestURI)) {
-                refinedValue = RefineValue(value);
+                refinedValue = refineValue(value);
 
                 String finalString = ("#" + key + "_" + refinedValue).toString().replace("\"", "");
 
@@ -825,7 +800,7 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
@@ -846,20 +821,20 @@ public class OWLFileGeneratorForGoogleTasks {
                 OWLClassAssertionAxiom classAssertion = factory.getOWLClassAssertionAxiom(owlClassToAdd, T);
                 manager.addAxiom(ontology, classAssertion);
 
-                AddLabelToAnnotation(factory, value, owlClassToAdd);
+                addLabelToAnnotation(factory, value, owlClassToAdd);
             }
         }
 
     }
 
-    public static void AddLabelToAnnotation(OWLDataFactory factory, String Label, OWLClass owlClass) {
+    public static void addLabelToAnnotation(OWLDataFactory factory, String Label, OWLClass owlClass) {
         OWLOntologyManager manager = ontology.getOWLOntologyManager();
         OWLAnnotation labelAnnotation = factory.getOWLAnnotation(factory.getRDFSLabel(), factory.getOWLLiteral(Label, "en"));
         OWLAxiom axiom = factory.getOWLAnnotationAssertionAxiom(owlClass.getIRI(), labelAnnotation);
         manager.applyChange(new AddAxiom(ontology, axiom));
     }
 
-    public static void CreateDisjointClassList(List<HTTPTransaction> mm, OWLDataFactory factory) {
+    public static void createDisjointClassList(OWLDataFactory factory) {
         IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
         String refinedValue = "";
         String currentValue = "";
@@ -895,12 +870,12 @@ public class OWLFileGeneratorForGoogleTasks {
                         currentValue = currentValue.replace("\"", "");
                     }
 
-                    if (isFeatureContain(mm, currentKey, currentValue, FeatureType.RequestHeader)) {
-                        refinedValue = RefineValueGoogle(currentValue);
+                    // if (isFeatureContain(mm, currentKey, currentValue, FeatureType.RequestHeader)) {
+                        refinedValue = refineValueGoogle(currentValue);
                         String finalString = ("#RequestHeader_" + nextKey + "_" + refinedValue).toString().replace("\"", "");
                         OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
                         owlClassToDisjointRequestHeaderList.add(owlClassToDisjoint);
-                    }
+                    // }
                 }
             }
         }
@@ -923,12 +898,12 @@ public class OWLFileGeneratorForGoogleTasks {
                         currentValue = currentValue.replace("\"", "");
                     }
 
-                    if (isFeatureContain(mm, currentKey, currentValue, FeatureType.ResponseHeader)) {
-                        refinedValue = RefineValueGoogle(currentValue);
+                    // if (isFeatureContain(mm, currentKey, currentValue, FeatureType.ResponseHeader)) {
+                        refinedValue = refineValueGoogle(currentValue);
                         String finalString = ("#ResponseHeader_" + nextKey + "_" + refinedValue).toString().replace("\"", "");
                         OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
                         owlClassToDisjointResponseHeaderList.add(owlClassToDisjoint);
-                    }
+                    // }
                 }
             }
         }
@@ -941,8 +916,8 @@ public class OWLFileGeneratorForGoogleTasks {
                 currentValue = ResponseBodyOwlClassList.get(i).toString().split("#", 2)[1].split("_", 3)[2].split(">")[0];
 
                 if (currentKey.equals(nextKey) && i != j) {
-                    if (isFeatureContain(mm, currentKey, currentValue, FeatureType.ResponseBody)) {
-                        refinedValue = RefineValueGoogle(currentValue);
+                    // if (isFeatureContain(mm, currentKey, currentValue, FeatureType.ResponseBody)) {
+                        refinedValue = refineValueGoogle(currentValue);
 
                         if (refinedValue.contains("#")) {
                             refinedValue = refinedValue.split("#")[1];
@@ -951,13 +926,13 @@ public class OWLFileGeneratorForGoogleTasks {
                         String finalString = ("#ResponseBody_" + nextKey + "_" + refinedValue).toString().replace("\"", "");
                         OWLClass owlClassToDisjoint = factory.getOWLClass(IRI.create(IOR + finalString));
                         owlClassToDisjointResponseBodyList.add(owlClassToDisjoint);
-                    }
+                    // }
                 }
             }
         }
     }
 
-    public static OWLDisjointClassesAxiom DisjointFeature(OWLDataFactory factory, String originalKey, List<OWLClass> owlClassToDisjointList) {
+    public static OWLDisjointClassesAxiom disjointFeature(OWLDataFactory factory, String originalKey, List<OWLClass> owlClassToDisjointList) {
         Set<OWLClass> c1 = new HashSet<OWLClass>();
 
         for (OWLClass owlClass : owlClassToDisjointList) {
@@ -974,4 +949,135 @@ public class OWLFileGeneratorForGoogleTasks {
 
         return null;
     }
+
+    public static void createOwlClassLists(IRI IOR, OWLDataFactory factory, String trainingFileName) throws IOException {
+        String csvFile = "src/resources/" + trainingFileName + ".csv";
+        BufferedReader br = null;
+        String headerLine = "";
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+
+        br = new BufferedReader(new FileReader(csvFile));
+        headerLine = br.readLine();
+        String[] headerText = headerLine.split(cvsSplitBy);
+
+        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
+
+        createClassList(IOR, factory, FeatureType.RequestMethod, valueLinesList, headerText);
+        createClassList(IOR, factory, FeatureType.RequestHeader, valueLinesList, headerText);
+        createClassList(IOR, factory, FeatureType.ResponseHeader, valueLinesList, headerText);
+        createClassList(IOR, factory, FeatureType.ResponseStatusCode, valueLinesList, headerText);
+        createClassList(IOR, factory, FeatureType.ResponseBody, valueLinesList, headerText);
+        createClassList(IOR, factory, FeatureType.RequestURI, valueLinesList, headerText);
+        createClassList(IOR, factory, FeatureType.RequestAuthToken, valueLinesList, headerText);
+    }
+
+    public static void createClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, List<String> valueLinesList, String[] headerText) throws IOException {
+        LOGGER.info("Creating OWL Class lists for " + featureType);
+
+        // set index of first and last columns to loop through each feature type
+        int colStart = getColNumber(featureType, "start");
+        int colEnd = getColNumber(featureType, "end");
+
+        for (int i = colStart; i <= colEnd; i++) {
+            List<String> distinctFeatureValueList = getDistinctFeatureValuesFromCSV(i, headerText, valueLinesList);
+            for (String featureValue : distinctFeatureValueList) {
+
+                if (distinctFeatureValueList.size() >= 10) { // we don't add classes to the list those who have 10 or more distinct values
+                } else {
+                    if (featureValue.indexOf(" ") >= 0 || featureValue.contains(",") || featureValue.contains(";") || featureValue.contains("=") || featureValue.contains("/")) {
+                        featureValue = "\'" + featureValue + "\'";
+                    }
+
+                    switch (featureType) {
+                        case RequestHeader:
+                            RequestHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + featureValue)));
+                            break;
+                        case ResponseHeader:
+                            ResponseHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + featureValue)));
+                            break;
+                        case ResponseBody:
+                            if (featureValue.contains("#") && StringUtils.countMatches(featureValue, "#") == 2) {
+                                featureValue = "#" + featureValue.split("#", 2)[1];
+                            }
+                            ResponseBodyOwlClassList.add(factory.getOWLClass(IRI.create(IOR + featureValue)));
+                            break;
+                        case RequestURI:
+                            RequestUriOwlClassList.add(factory.getOWLClass(IRI.create(IOR + featureValue)));
+                            break;
+                        case ResponseStatusCode:
+                            ResponseStatusCodeOwlClassList.add(factory.getOWLClass(IRI.create(IOR + featureValue)));
+                            break;
+                        case RequestMethod:
+                            RequestMethodOwlClassList.add(factory.getOWLClass(IRI.create(IOR + featureValue)));
+                            break;
+                        default: {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static int getColNumber(FeatureType featureType, String startOrEnd) {
+        int startPoint;
+        int endPoint;
+
+        switch (featureType) {
+            case RequestMethod:
+                startPoint = 0;
+                endPoint = 0;
+                break;
+            case RequestHeader:
+                startPoint = 16;
+                endPoint = 23;
+                break;
+            case ResponseHeader:
+                startPoint = 24;
+                endPoint = 38;
+                break;
+            case ResponseStatusCode:
+                startPoint = 1;
+                endPoint = 1;
+                break;
+            case ResponseBody:
+                startPoint = 39;
+                endPoint = 49;
+                break;
+            case RequestURI:
+                startPoint = 2;
+                endPoint = 15;
+                break;
+            default:
+                return 0;
+        }
+
+        if (startOrEnd == "start")
+            return startPoint;
+        return endPoint;
+    }
+
+    public static List<String> getDistinctFeatureValuesFromCSV(int i, String[] headerText, List<String> valueLinesList) {
+
+        List<String> rhConnectionList = new ArrayList<>();
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+
+        String header = "";
+
+        for (String valueLine : valueLinesList) {
+            header = headerText[i];
+            if (header.contains(":")) {
+                header = header.replace(":", "_");
+            }
+            String[] valueText = valueLine.split(cvsSplitBy);
+            String finalString = "";
+
+            finalString = ("#" + header + "_" + valueText[i]).toString().replace("\"", "");
+            rhConnectionList.add(finalString);
+        }
+
+        List<String> rhConnectionFinalList = rhConnectionList.stream().distinct().collect(Collectors.toList());
+
+        return rhConnectionFinalList;
+    }
+
 }

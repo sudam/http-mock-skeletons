@@ -11,8 +11,13 @@ import nz.ac.massey.httpmockskeletons.scripts.datapreparator.dllearningtrainingd
 import nz.ac.massey.httpmockskeletons.scripts.datapreparator.dllearningtrainingdatagenerator.OWLFileGeneratorForTwitter;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
-
 import java.io.File;
+
+/**
+ * Prepare necessary datasets for each learning type [attribute based learning / description logic learning]
+ *
+ * @author Thilini Bhagya
+ **/
 
 public class TrainingDataGenerator {
     private static Logger LOGGER = Logger.getLogger(TrainingDataGenerator.class);

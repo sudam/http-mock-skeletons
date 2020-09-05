@@ -1,9 +1,8 @@
 package nz.ac.massey.httpmockskeletons.scripts.modellearner;
 
-import nz.ac.massey.httpmockskeletons.scripts.Logging;
-import nz.ac.massey.httpmockskeletons.scripts.commons.CheckValidClasses;
+import nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearningmodeltrainer.CheckTargetAttributesToLearn;
+import nz.ac.massey.httpmockskeletons.scripts.modellearner.dllearningmodeltrainer.CheckTargetClassesToLearn;
 import nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearningmodeltrainer.C45ModelTrainer;
-import nz.ac.massey.httpmockskeletons.scripts.commons.CheckAttributesDetails;
 import nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearningmodeltrainer.PARTModelTrainer;
 import nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearningmodeltrainer.RIPPERModelTrainer;
 import org.apache.commons.cli.*;
@@ -25,13 +24,10 @@ public class ModelTrainer {
 
     public static int indexToLearn;
     public static String dataFileName;
-
     public static String datasetInput = "";
     public static String algorithmInput = "";
     public static String indexInput = "";
     public static String classNameInput = "";
-
-    static org.apache.log4j.Logger LOGGER = Logging.getLogger(ModelTrainer.class);
 
     public ModelTrainer(String datasetInput) throws Exception {
         // Set file names to variables of each dataset type
@@ -61,8 +57,8 @@ public class ModelTrainer {
         options.addOption("a", "algorithm", true, "Algorithm");
         options.addOption("i", "index", true, "Index");
         options.addOption("c", "className", true, "Class Name");
-        options.addOption("key", "checkAttributeDetails", true, "Check Attribute Details");
-        options.addOption("class", "checkValidClasses", true, "Check Valid Classes");
+        options.addOption("ilist", "checkAttributeDetails", true, "Check Attribute Details");
+        options.addOption("clist", "checkValidClasses", true, "Check Valid Classes");
 
         try {
             // Read from CLI input
@@ -105,26 +101,24 @@ public class ModelTrainer {
 
                 processWithOCEL(datasetInput, algorithmInput, classNameInput);
 
-            } else if (cmd.hasOption("key")) { // Check attributes
-
-                datasetInput = cmd.getOptionValue("key").toString().toLowerCase();
+            } else if (cmd.hasOption("ilist")) { // Check attributes
+                datasetInput = cmd.getOptionValue("ilist").toString().toLowerCase();
                 ModelTrainer modelTrainer = new ModelTrainer(datasetInput);
                 System.out.println("Attribute Details for " + datasetInput);
-                CheckAttributesDetails.AttributeDetails(args, options);
+                CheckTargetAttributesToLearn.AttributeDetails(args, options);
 
-            } else if (cmd.hasOption("class")) { // Check valid classes
-
-                datasetInput = cmd.getOptionValue("class").toString().toLowerCase();
+            } else if (cmd.hasOption("clist")) { // Check valid classes
+                datasetInput = cmd.getOptionValue("clist").toString().toLowerCase();
                 ModelTrainer modelTrainer = new ModelTrainer(datasetInput);
                 System.out.println("Valid Classes for " + datasetInput);
-                CheckValidClasses.ValidClassDetails(datasetInput);
+                CheckTargetClassesToLearn.validClassDetails(datasetInput);
 
             } else {
-                LOGGER.warn("Invalid Arguments!");
+                System.out.println("Invalid Arguments!");
             }
 
         } catch (Exception e) {
-            LOGGER.warn(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 

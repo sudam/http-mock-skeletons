@@ -37,8 +37,6 @@ public class OCELModelTrainer {
     public static ResponseType ResponseTypeInput; // input parameter for Response Type
     public static List<String> classInstanceList = new ArrayList<String>();
 
-    // private static Logger LOGGER = Logger.getLogger(OCELModelTrainer.class);
-
     public enum ResponseType {
         ResponseHeader,
         ResponseStatusCode,

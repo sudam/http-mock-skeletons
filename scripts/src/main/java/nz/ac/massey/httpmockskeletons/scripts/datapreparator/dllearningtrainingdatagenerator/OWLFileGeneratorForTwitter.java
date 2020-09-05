@@ -9,26 +9,22 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel.*;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
- * Script to generate OWL Ontology for Twitter
+ * Generate OWL Ontology for Twitter
  *
- * @author thilini bhagya
- */
+ * @author Thilini Bhagya
+ **/
 
 public class OWLFileGeneratorForTwitter {
     static BufferedReader br = null;
-    //create a central object to manage the ontology
     static OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
     static OWLOntology ontology;
     static OWLIndividual T = null;
@@ -36,6 +32,7 @@ public class OWLFileGeneratorForTwitter {
     static OWLClass Transaction;
     static OWLSubClassOfAxiom OWLSubClass;
     static JSONArray twitterHeaderLabelsArray = new JSONArray();
+    static List<String> lastIdList = new ArrayList<>();
 
     public enum FeatureType {
         RequestMethod,
@@ -62,9 +59,6 @@ public class OWLFileGeneratorForTwitter {
 
     public static void generateOwlFile(String owlFileName, String subdataFileName, String subTrainingFileName) throws Exception {
         try {
-
-            LOGGER.info("Generating OWL File");
-
             //IRI stands for Internationalised Resource Identifier
             //provides link to the ontology on the web, every class, every property, every individual has one
             IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
@@ -74,20 +68,9 @@ public class OWLFileGeneratorForTwitter {
             //to create ontology building blocks
             OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
 
-            // createOwlClassLists(IOR, factory, subTrainingFileName);
+            createOwlClassLists(IOR, factory, subTrainingFileName);
 
-            RequestMethodOwlClassList = readOwlClassLists(FeatureType.RequestMethod);
-            RequestHeaderOwlClassList = readOwlClassLists(FeatureType.RequestHeader);
-            ResponseHeaderOwlClassList = readOwlClassLists(FeatureType.ResponseHeader);
-            ResponseStatusCodeOwlClassList = readOwlClassLists(FeatureType.ResponseStatusCode);
-            ResponseBodyOwlClassList = readOwlClassLists(FeatureType.ResponseBody);
-            RequestAuthTokenOwlClassList = readOwlClassLists(FeatureType.RequestAuthToken);
-            RequestUriOwlClassList = readOwlClassLists(FeatureType.RequestURI);
-
-            owlClassToDisjointRequestHeaderList = readDisjointClassLists(FeatureType.RequestHeader);
-            owlClassToDisjointRequestUriList = readDisjointClassLists(FeatureType.RequestURI);
-            owlClassToDisjointResponseHeaderList = readDisjointClassLists(FeatureType.ResponseHeader);
-            owlClassToDisjointResponseBodyList = readDisjointClassLists(FeatureType.ResponseBody);
+            LOGGER.info("Generating OWL File");
 
             // Object properties
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty(IRI.create(IOR + "#isPrecededBy"));
@@ -115,9 +98,7 @@ public class OWLFileGeneratorForTwitter {
             HTTPTransaction.read("src/resources/" + subdataFileName + ".csv");
 
             // Create disjoint class lists
-            // createDisjointClassLists(factory);
-
-            List<String> lastIdList = new ArrayList<>();
+            preprocess(factory);
 
             for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
                 List<String> n = new LinkedList<String>();
@@ -1031,22 +1012,12 @@ public class OWLFileGeneratorForTwitter {
         return key + "~" + value;
     }
 
-    public static void createOwlClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, String subTrainingFileName) throws IOException {
+    public static void createOwlClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, List<String> valueLinesList, String[] headerText) throws IOException {
+        LOGGER.info("Creating OWL Class lists for " + featureType);
+
         // set index of first and last columns to loop through each feature type
         int colStart = getColumnNumber(featureType, "start");
         int colEnd = getColumnNumber(featureType, "end");
-
-        String csvFile = "src/resources/" + subTrainingFileName + ".csv";
-        BufferedReader br = null;
-        String line = "";
-
-        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
-
-        br = new BufferedReader(new FileReader(csvFile));
-        line = br.readLine();
-        String[] headerText = line.split(cvsSplitBy);
-
-        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
 
         for (int i = colStart; i <= colEnd; i++) {
             List<String> distinctFeatureValueList = getDistinctFeatureValuesFromCSV(i, headerText, valueLinesList);
@@ -1057,10 +1028,12 @@ public class OWLFileGeneratorForTwitter {
                     if (headerItem.indexOf(" ") >= 0 || headerItem.contains(",") || headerItem.contains(";") || headerItem.contains("=") || headerItem.contains("/")) {
                         headerItem = "\'" + headerItem + "\'";
                     }
-
                     switch (featureType) {
                         case RequestHeader:
-                            RequestHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            if (headerItem.contains("Content-Length")) {
+                            } else {
+                                RequestHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
+                            }
                             break;
                         case ResponseHeader:
                             ResponseHeaderOwlClassList.add(factory.getOWLClass(IRI.create(IOR + headerItem)));
@@ -1087,38 +1060,6 @@ public class OWLFileGeneratorForTwitter {
                         }
                     }
                 }
-            }
-        }
-        switch (featureType) {
-            case RequestHeader:
-                LOGGER.info("RequestHeader class list created");
-                writeOwlClassListToFile(RequestHeaderOwlClassList, FeatureType.RequestHeader);
-                break;
-            case ResponseHeader:
-                LOGGER.info("ResponseHeader class list created");
-                writeOwlClassListToFile(ResponseHeaderOwlClassList, FeatureType.ResponseHeader);
-                break;
-            case ResponseBody:
-                LOGGER.info("ResponseBody class list created");
-                writeOwlClassListToFile(ResponseBodyOwlClassList, FeatureType.ResponseBody);
-                break;
-            case RequestURI:
-                LOGGER.info("RequestURI class list created");
-                writeOwlClassListToFile(RequestUriOwlClassList, FeatureType.RequestURI);
-                break;
-            case ResponseStatusCode:
-                LOGGER.info("ResponseStatusCode class list created");
-                writeOwlClassListToFile(ResponseStatusCodeOwlClassList, FeatureType.ResponseStatusCode);
-                break;
-            case RequestMethod:
-                LOGGER.info("RequestMethod class list created");
-                writeOwlClassListToFile(RequestMethodOwlClassList, FeatureType.RequestMethod);
-                break;
-            case RequestAuthToken:
-                LOGGER.info("RequestAuthToken class list created");
-                writeOwlClassListToFile(RequestAuthTokenOwlClassList, FeatureType.RequestAuthToken);
-                break;
-            default: {
             }
         }
     }
@@ -1323,154 +1264,39 @@ public class OWLFileGeneratorForTwitter {
     }
 
     public static void createOwlClassLists(IRI IOR, OWLDataFactory factory, String subTrainingFileName) throws IOException {
-        createOwlClassList(IOR, factory, FeatureType.RequestMethod, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.RequestHeader, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.ResponseHeader, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.ResponseStatusCode, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.ResponseBody, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.RequestAuthToken, subTrainingFileName);
-        createOwlClassList(IOR, factory, FeatureType.RequestURI, subTrainingFileName);
+        String csvFile = "src/resources/" + subTrainingFileName + ".csv";
+        BufferedReader br = null;
+        String line = "";
+
+        String cvsSplitBy = ",(?=(?:[^\\\']*\\\'[^\\\']*\\\')*[^\\\']*$)";
+
+        br = new BufferedReader(new FileReader(csvFile));
+        line = br.readLine();
+        String[] headerText = line.split(cvsSplitBy);
+
+        List<String> valueLinesList = br.lines().distinct().collect(Collectors.toList());
+
+        createOwlClassList(IOR, factory, FeatureType.RequestMethod, valueLinesList, headerText);
+        createOwlClassList(IOR, factory, FeatureType.RequestHeader, valueLinesList, headerText);
+        createOwlClassList(IOR, factory, FeatureType.ResponseHeader, valueLinesList, headerText);
+        createOwlClassList(IOR, factory, FeatureType.ResponseStatusCode, valueLinesList, headerText);
+        createOwlClassList(IOR, factory, FeatureType.ResponseBody, valueLinesList, headerText);
+        createOwlClassList(IOR, factory, FeatureType.RequestAuthToken, valueLinesList, headerText);
+        createOwlClassList(IOR, factory, FeatureType.RequestURI, valueLinesList, headerText);
     }
 
-    public static void writeOwlClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
-        String featureTypeForFile = featureType.toString();
-        try {
-            FileOutputStream fos = new FileOutputStream("src/resources/twitterClassNameLists/" + featureTypeForFile + "OwlClassList");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(OwlClassList);
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
-    public static ArrayList<OWLClass> readOwlClassLists(FeatureType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/twitterClassNameLists/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case RequestHeader:
-                    fis = new FileInputStream(listPath + "RequestHeaderOwlClassList");
-                    break;
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeaderOwlClassList");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBodyOwlClassList");
-                    break;
-                case RequestURI:
-                    fis = new FileInputStream(listPath + "RequestURIOwlClassList");
-                    break;
-                case ResponseStatusCode:
-                    fis = new FileInputStream(listPath + "ResponseStatusCodeOwlClassList");
-                    break;
-                case RequestMethod:
-                    fis = new FileInputStream(listPath + "RequestMethodOwlClassList");
-                    break;
-                case RequestAuthToken:
-                    fis = new FileInputStream(listPath + "RequestAuthTokenOwlClassList");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList) ois.readObject();
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
-    }
-
-    public static void writeDisjointClassListToFile(List<OWLClass> OwlClassList, FeatureType featureType) {
-        String featureTypeForFile = featureType.toString();
-        try {
-            FileOutputStream fos = new FileOutputStream("src/resources/twitterDisjointClassList/" + featureTypeForFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(OwlClassList);
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
-    public static ArrayList<OWLClass> readDisjointClassLists(FeatureType featureType) {
-        ArrayList<OWLClass> URIList = new ArrayList<OWLClass>();
-        String listPath = "src/resources/twitterDisjointClassList/";
-
-        try {
-            FileInputStream fis = null;
-
-            switch (featureType) {
-                case RequestHeader:
-                    fis = new FileInputStream(listPath + "RequestHeader");
-                    break;
-                case ResponseHeader:
-                    fis = new FileInputStream(listPath + "ResponseHeader");
-                    break;
-                case ResponseBody:
-                    fis = new FileInputStream(listPath + "ResponseBody");
-                    break;
-                case RequestURI:
-                    fis = new FileInputStream(listPath + "RequestURI");
-                    break;
-                default: {
-                }
-            }
-
-            ObjectInputStream ois = new ObjectInputStream(fis);
-
-            URIList = (ArrayList<OWLClass>) ((ArrayList) ois.readObject()).stream().distinct().collect(Collectors.toList());
-
-            ois.close();
-            fis.close();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
-            return null;
-        }
-
-        return URIList;
-    }
-
-    public static void writeDisjointClassListToFiles(){
-        writeDisjointClassListToFile(owlClassToDisjointRequestHeaderList, FeatureType.RequestHeader);
-        writeDisjointClassListToFile(owlClassToDisjointRequestUriList, FeatureType.RequestURI);
-        writeDisjointClassListToFile(owlClassToDisjointResponseHeaderList, FeatureType.ResponseHeader);
-        writeDisjointClassListToFile(owlClassToDisjointResponseBodyList, FeatureType.ResponseBody);
-    }
-
-    public static void createDisjointClassLists(OWLDataFactory factory){
+    public static void preprocess(OWLDataFactory factory) {
         for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
             List<String> n = new LinkedList<String>();
+
             for (List<HTTPTransaction> mm : m.getValue().values()) {
+                n.add(mm.get(0).transaction);
+                // create disjoint class lists
                 createDisjointClassList(mm, factory);
             }
+
+            // get the list of transaction ids happened lastly in each resource
+            lastIdList.add(n.get(n.size() - 1));
         }
-
-        writeDisjointClassListToFiles();
     }
-
 }
