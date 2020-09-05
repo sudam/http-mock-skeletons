@@ -60,9 +60,11 @@ It requires two arguments:
 - **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
 - **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
 
-> To perform experiments on attribute-based learning algorithms with GoogleTasks dataset, clone the repository into a folder, extract the dataset into scripts/src/resources, cd into scripts folder and run the following command:
->
-> ./datapreparator.sh -l abl -d GoogleTasks
+```
+To perform experiments on attribute-based learning algorithms with GoogleTasks dataset, clone the repository into a folder, extract the dataset into scripts/src/resources, cd into scripts folder and run the following command:
+
+./datapreparator.sh -l abl -d GoogleTasks
+```
 
 Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL) will be generated and stored in the resources folder.
 
@@ -76,17 +78,21 @@ It requires three arguments:
 - **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset
 - **-i** with the **target index** to train in attribute-based learning or **-c** with the name of **target class** to train in description logic learning
 
-> Run the following command to generate a classification model by C4.5 for the ResponseStatusCode target attribute (with index 1) of the GoogleTasks dataset:
->
-> ./modellearner.sh -a C4.5 -d GoogleTasks -i 1
+```
+Run the following command to generate a classification model by C4.5 for the ResponseStatusCode target attribute (with index 1) of the GoogleTasks dataset:
+
+./modellearner.sh -a C4.5 -d GoogleTasks -i 1
+```
 
 Based on the specified algorithm and the target, the model will be generated and output to the terminal.
 
 The script also contains options **-ilist** and **-clist** with the **dataset type** as the value for retrieving the full list of target attribute indexes or target class names that are optimal for predictions in each dataset. By referring to these lists, you can identify the target attribute index or the target class name that you want to learn.
 
-> Run the following command to access the target attribute list for the GoogleTasks dataset:
->
-> ./modellearner.sh -ilist GoogleTasks
+```
+Run the following command to access the target attribute list for the GoogleTasks dataset:
+
+./modellearner.sh -ilist GoogleTasks
+```
 
 #### Testing Classifiers
 
@@ -94,8 +100,10 @@ The script **modelevaluator.sh** is configured to execute the **Model Evaluation
 
 It requires the **same input arguments** as modellearner.sh.
 
-> Run the following command to cross validate the C4.5 model for the ResponseStatusCode target attribute (with index 1) of the GoogleTasks dataset:
->
-> ./modelevaluator.sh -a C4.5 -d GoogleTasks -i 1
+```
+Run the following command to cross validate the C4.5 model for the ResponseStatusCode target attribute (with index 1) of the GoogleTasks dataset:
+
+./modelevaluator.sh -a C4.5 -d GoogleTasks -i 1
+```
 
 Depending on the specified algorithm and the target, the model will be evaluated and the results will be output to the terminal. Note that the evaluation results can slightly differ in each execution as cross validation randomly generates folds.
