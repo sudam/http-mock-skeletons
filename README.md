@@ -60,7 +60,7 @@ It requires two arguments:
 - **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
 - **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
 
-Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL) will be generated and stored in the resources folder.
+Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL) will be generated and stored in the resources folder. Note that it can take quite some time to generate training data.
 
 For example to perform experiments on attribute-based learning algorithms with GoogleTasks dataset, clone the repository into a folder, extract the dataset into scripts/src/resources, cd into scripts folder and run the following command:
 
