@@ -51,26 +51,40 @@ The following setup is required in order to use the experimental scripts by clon
 
 ### Running Experiments
 
-1. The script **datapreparator.sh** is configured to execute the **Data Preprocessing** and **Data Transformation** phases.
+#### Generating Training Data
 
-   It requires two arguments: 
+The script **datapreparator.sh** is configured to execute the **Data Preprocessing** and **Data Transformation** phases in which the downloaded raw data is cleaned and converted into data formats suitable for different learning types. 
 
-   **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
+It requires two arguments: 
 
-   **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
+- **-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset downloaded
+- **-l** with either **abl** (for attribute-based learning) or **dll** (for description logic learning) specifying the learning type intended for experimentation
 
-   Depending on the dataset and learning type specified, the training data (e.g., <datasettype>-training.arff or training.owl file) will be generated and stored in the resources folder.
+Depending on the dataset and learning type specified, the training data (e.g., ARFF or OWL) will be generated and stored in the resources folder.
 
-To generate the small edition of GHTraffic, clone the repository into a folder, cd into script folder and run the following command:
+#### Training Classifiers
 
-./build.sh -S 
-To generate all three editions of GHTraffic, run the following command:
-./build.sh -S -M -L 
-Each dataset will be located in a sub folder called scripts/DataSet
+The script **modellearner.sh** is configured to execute the **Model Construction** step in which the model artefacts are generated from training data created by datapreparator.sh.
 
-The script analyse.sh analyses each dataset in terms of HTTP request methods, status codes and GHTraffic record type.
+It requires three arguments: 
 
-Latex tables per matric will be generated in paper/Metrics folder
+**-d** with either **GHTraffic**, **Twitter**, **GoogleTasks** or **Slack** specifying the type of dataset
 
-**Note that due to the use of random data generation this scripts will produce slightly different datasets at each execution.**
+**-a** with either **C4.5**, **RIPPER**, PART or **OCEL** specifying the learning algorithm intended for experimentation
+
+**-i** with the **target index** to train in attribute-based learning or **-c** with the name of **target class** to train in description logic learning
+
+Based on the specified algorithm and the target, the model will be generated and output to the terminal.
+
+The script also contains options **-indexlist** and **-classlist** with the **dataset type** as the value for retrieving the full list of target attribute indexes or target class names that are optimal for predictions in each dataset. By referring to these lists, you can identify the target attribute index or the target class name that you want to learn.
+
+#### Testing Classifiers
+
+The script **modelevaluator.sh** is configured to execute the **Model Evaluation** step in which the generated model artefacts are tested using the cross validation technique.
+
+It requires the **same input arguments** as modellearner.sh.
+
+Depending on the specified algorithm and the target, the model will be evaluated and the results will be output to the terminal. Note that the evaluation results can slightly differ in each execution as cross validation randomly generates folds.
+
+
 
