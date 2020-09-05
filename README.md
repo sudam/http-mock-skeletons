@@ -4,7 +4,7 @@ This is the project repository for the thesis titled **[Generating Mock Skeleton
 
 The aim of this research is to understand the appropriateness of SML techniques for generating mock skeletons of HTTP services directly from traffic records. We consider four promising symbolic learning algorithms: the **C4.5** decision tree algorithm, the **RIPPER** and **PART** rule learners (**from** **attribute-based learning** and we use their **WEKA** implementations) and the **OCEL** class expression learning algorithm (**from description logic learning** and it is implemented in **DL-Learner**). All the experiments have been done employing network traffic datasets derived from the services offered by GitHub, Twitter, Google, and Slack. 
 
-There are four stages the experimental methodology: 
+There are four stages in the experimental methodology: 
 
 1. **Data Preprocessing**: cleans the raw datasets by removing the contents of data records that impede datasets from being processed and/or parsed correctly. The cleansed data will be stored separately from the raw datasets for the next step to load up and process.
 2. **Data Transformation**: converts preprocessed data into data formats appropriate for the selected learning algorithms. The attribute-based learning algorithms expect input data described in the propositional attribute-value format, whereas algorithms based on description logic learning require data with rich domain knowledge expressed in description logics. We, therefore, pursue two different directions for the transformation of preprocessed data. The data extracted from recorded HTTP transactions are subsequently converted into the Attribute-Relation File Format (ARFF) to be used in WEKA, also transformed into the OWL knowledge bases to be used in DL-Learner (also some individuals on each knowledge base are selected to serve as examples).
@@ -47,7 +47,7 @@ The following setup is required in order to use the experimental scripts by clon
 2. Install Apache Maven 3.5.0 or above
 3. Create scripts/src/resources folder where all raw and training data is stored 
 4. Download the appropriate dataset from the links above, based on the learning type you intend to experiment with
-5. Extract the zipped file and move the dataset file to scripts/src/resources
+5. Extract the zipped file and move the dataset file (i.e., json or xml) to scripts/src/resources
 
 ### Running Experiments
 
