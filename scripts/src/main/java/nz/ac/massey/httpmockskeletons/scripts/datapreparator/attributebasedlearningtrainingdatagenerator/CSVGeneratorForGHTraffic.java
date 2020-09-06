@@ -13,7 +13,7 @@ import java.util.*;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.hasImmediatelyPreviousTransactionSucceeded;
 
 /**
- * This class generates csv file for Twitter dataset
+ * This class generates csv file for GHTraffic dataset
  * related with attributes
  *
  * @author thilinibhagya
@@ -29,7 +29,7 @@ public class CSVGeneratorForGHTraffic {
     static Set<String> RequestBodyKeySet = new TreeSet<String>();
 
     public static void csvFileGeneratorWithAttributes(String writeFileName, String readFileName) throws Exception {
-        LOGGER.info("Generating a CSV file for GHTraffic with attributes-values");
+        LOGGER.info("Extracting attributes-values from preprocessed GHTraffic data");
         String csv = writeFileName + ".csv";
         CSVWriter writer = new CSVWriter(new FileWriter(csv), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
         List<String[]> data = new ArrayList<String[]>();

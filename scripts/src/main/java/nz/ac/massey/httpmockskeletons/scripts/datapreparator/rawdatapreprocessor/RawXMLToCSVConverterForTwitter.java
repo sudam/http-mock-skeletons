@@ -1,5 +1,6 @@
 package nz.ac.massey.httpmockskeletons.scripts.datapreparator.rawdatapreprocessor;
 
+import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,8 +26,10 @@ import java.util.*;
  * @author thilini bhagya
  */
 public class RawXMLToCSVConverterForTwitter {
+    static org.apache.log4j.Logger LOGGER = Logging.getLogger(RawXMLToCSVConverterForTwitter.class);
     //read request.xml data
     public static void fileWriter(String fileName, String xmlFileName) throws Exception {
+        LOGGER.info("Cleaning Twitter dataset");
         FileWriter writer = new FileWriter(fileName);
 
         //csv file headers

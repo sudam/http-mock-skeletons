@@ -1,5 +1,6 @@
 package nz.ac.massey.httpmockskeletons.scripts.datapreparator.rawdatapreprocessor;
 
+import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,8 +20,11 @@ import java.text.*;
  */
 
 public class RawJSONToCSVConverterForGHTraffic {
+    static org.apache.log4j.Logger LOGGER = Logging.getLogger(RawJSONToCSVConverterForGHTraffic.class);
+
     //read request.xml data
     public static File fileWriter(String fileName, String xmlFileName) throws IOException, java.text.ParseException, ParseException {
+        LOGGER.info("Cleaning GHTraffic dataset");
         FileWriter writer = new FileWriter(fileName);
 
         //csv file headers

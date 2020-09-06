@@ -12,9 +12,9 @@ import java.io.File;
  * @author thilinibhagya
  */
 public class CSVToARFFConverter {
-    static org.apache.log4j.Logger LOGGER = Logging.getLogger(CSVGeneratorForGHTraffic.class);
+    static org.apache.log4j.Logger LOGGER = Logging.getLogger(CSVToARFFConverter.class);
     public static void convertCSVDataFileToARFFFormat(String fileName) throws Exception {
-        LOGGER.info("Generating an ARFF file from the CSV");
+        LOGGER.info("Converting extracted data into ARFF format");
         // load CSV file
         CSVLoader loader = new CSVLoader();
         loader.setSource(new File(fileName+".csv"));

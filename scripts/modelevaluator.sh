@@ -5,22 +5,22 @@ END_MESSAGE=""
 
 if [ $1 == -ilist ]
 then
-START_MESSAGE="Check attribute details"
-END_MESSAGE="End checking attribute details"
+START_MESSAGE="Start checking optimal target attribute indexes for predictions"
+END_MESSAGE="End checking optimal target attribute indexes for predictions"
 elif [ $1 == -clist ]
 then
-START_MESSAGE="Check valid classes"
-END_MESSAGE="End checking valid classes"
+START_MESSAGE="Start checking optimal target class names for predictions"
+END_MESSAGE="End checking optimal target class names for predictions"
 elif [ $1 == -a ] && [ $3 == -d ] && [ $5 == -i ]
 then
-START_MESSAGE="Start model training"
-END_MESSAGE="End model training"
+START_MESSAGE="Start model testing"
+END_MESSAGE="End model testing"
 elif [ $1 == -a ] && [ $3 == -d ] && [ $5 == -c ]
 then
-START_MESSAGE="Start OCEL"
-END_MESSAGE="End OCEL"
+START_MESSAGE="Start model testing"
+END_MESSAGE="End model testing"
 else
-echo "Invalid Arguments"
+echo "Invalid arguments"
 fi
 
 echo $START_MESSAGE

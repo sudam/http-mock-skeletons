@@ -1,5 +1,6 @@
 package nz.ac.massey.httpmockskeletons.scripts.datapreparator.rawdatapreprocessor;
 
+import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import nz.ac.massey.httpmockskeletons.scripts.commons.URITokeniser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,8 +29,10 @@ import org.json.*;
  * @author thilini bhagya
  */
 public class RawXMLToCSVConverterForSlack {
+    static org.apache.log4j.Logger LOGGER = Logging.getLogger(RawXMLToCSVConverterForSlack.class);
     //read xml file, extract http features and write to a csv file
     public static void csvFileWriter(String fileName, String xmlFileName) throws Exception {
+        LOGGER.info("Cleaning Slack dataset");
         int transactionIndex = 0;
 
         FileWriter writer = new FileWriter(fileName);

@@ -1,5 +1,6 @@
 package nz.ac.massey.httpmockskeletons.scripts.datapreparator.rawdatapreprocessor;
 
+import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -24,8 +25,10 @@ import java.util.Scanner;
  */
 
 public class RawXMLToCSVConverterForGoogleTasks {
+    static org.apache.log4j.Logger LOGGER = Logging.getLogger(RawXMLToCSVConverterForGoogleTasks.class);
     // Read request.xml data
     public static void fileWriter(String fileName, String xmlFileName) throws Exception {
+        LOGGER.info("Cleaning Google Tasks dataset");
         FileWriter writer = new FileWriter(fileName);
 
         //csv file headers

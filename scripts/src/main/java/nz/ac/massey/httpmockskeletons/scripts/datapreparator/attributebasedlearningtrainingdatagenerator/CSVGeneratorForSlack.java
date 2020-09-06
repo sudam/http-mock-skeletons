@@ -26,7 +26,7 @@ import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
     static Set<String> responseBodyKeySet = new TreeSet<String>();
 
     public static void csvFileGeneratorWithAttributes(String writeFileName, String readFileName) throws Exception {
-        LOGGER.info("Generating a CSV file for Slack with attributes-values");
+        LOGGER.info("Extracting attributes-values from preprocessed Slack data");
         String csv = writeFileName + ".csv";
         CSVWriter writer = new CSVWriter(new FileWriter(csv), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
         List<String[]> data = new ArrayList<String[]>();

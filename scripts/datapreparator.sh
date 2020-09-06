@@ -5,15 +5,15 @@ END_MESSAGE=""
 
 if [ $1 == -l ] && [ $2 == "abl" ]
 then
-START_MESSAGE="WEKA $2"
-END_MESSAGE="END WEKA"
+START_MESSAGE="Start generating training data for attribute-based learning"
+END_MESSAGE="End generating training data for attribute-based learning"
 elif [ $1 == -l ] && [ $2 == "dll" ]
 then
-START_MESSAGE="DLLEARNER $2" 
-END_MESSAGE="END DL"
+START_MESSAGE="Start generating training data for description logic learning" 
+END_MESSAGE="End generating training data for description logic learning"
 else
-START_MESSAGE="Start model training"
-END_MESSAGE="End generating training data"
+START_MESSAGE=""
+$END_MESSAGE=""
 fi
 
 echo $START_MESSAGE
