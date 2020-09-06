@@ -57,8 +57,8 @@ public class ModelTrainer {
         options.addOption("a", "algorithm", true, "Algorithm");
         options.addOption("i", "index", true, "Index");
         options.addOption("c", "className", true, "Class Name");
-        options.addOption("ilist", "checkAttributeDetails", true, "Check Attribute Details");
-        options.addOption("clist", "checkValidClasses", true, "Check Valid Classes");
+        options.addOption("ilist", "checkOptimalAttribute", true, "Check optimal attributes");
+        options.addOption("clist", "checkOptimalClasses", true, "check optimal classes");
 
         try {
             // Read from CLI input
@@ -104,17 +104,19 @@ public class ModelTrainer {
             } else if (cmd.hasOption("ilist")) { // Check attributes
                 datasetInput = cmd.getOptionValue("ilist").toString().toLowerCase();
                 ModelTrainer modelTrainer = new ModelTrainer(datasetInput);
-                System.out.println("Attribute Details for " + datasetInput);
+                System.out.println("Optimal target attribute indexes for predictions in " + datasetInput+" dataset (with name and type)");
+                System.out.println();
                 CheckTargetAttributesToLearn.AttributeDetails(args, options);
 
             } else if (cmd.hasOption("clist")) { // Check valid classes
                 datasetInput = cmd.getOptionValue("clist").toString().toLowerCase();
                 ModelTrainer modelTrainer = new ModelTrainer(datasetInput);
-                System.out.println("Valid Classes for " + datasetInput);
+                System.out.println("Optimal target class names for predictions in " + datasetInput+" dataset");
+                System.out.println();
                 CheckTargetClassesToLearn.validClassDetails(datasetInput);
 
             } else {
-                System.out.println("Invalid Arguments!");
+                System.out.println("Invalid arguments");
             }
 
         } catch (Exception e) {

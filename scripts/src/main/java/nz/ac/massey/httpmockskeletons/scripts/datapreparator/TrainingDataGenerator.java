@@ -103,14 +103,14 @@ public class TrainingDataGenerator {
     }
 
     public static void logInvalidLearningType(){
-        LOGGER.warn("Invalid learning type!");
+        LOGGER.warn("Invalid learning type");
     }
 
     public static void logInvalidDataType(){
-        LOGGER.warn("Invalid data type!");
+        LOGGER.warn("Invalid data type");
     }
 
     public static void logInvalidInput(){
-        LOGGER.warn("Invalid input!");
+        LOGGER.warn("Invalid input");
     }
 }

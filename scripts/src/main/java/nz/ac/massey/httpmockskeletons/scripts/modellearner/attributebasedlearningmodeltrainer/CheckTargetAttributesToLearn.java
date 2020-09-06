@@ -23,7 +23,7 @@ public class CheckTargetAttributesToLearn {
             CommandLineParser parser = new BasicParser();
             CommandLine cmd = parser.parse(options, args);
 
-            datasetInput = cmd.getOptionValue("key");
+                datasetInput = cmd.getOptionValue("ilist").toLowerCase();
 
             switch (datasetInput) {
                 case "googletasks":
@@ -42,7 +42,6 @@ public class CheckTargetAttributesToLearn {
 
             Instances instances = new ConverterUtils.DataSource(dataFileName + ".arff").getDataSet();
 
-            System.out.println("Class List");
             for (int i = 0; i < instances.numAttributes(); i++) {
                 int distinctValueCount = instances.numDistinctValues(i);
                 String name = instances.attribute(i).name();
