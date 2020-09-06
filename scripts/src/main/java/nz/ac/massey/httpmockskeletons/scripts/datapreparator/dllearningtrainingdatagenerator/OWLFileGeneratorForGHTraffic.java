@@ -72,7 +72,7 @@ public class OWLFileGeneratorForGHTraffic {
 
             createOwlClassLists(IOR, factory, subTrainingFileName);
 
-            LOGGER.info("Generating OWL file");
+            LOGGER.info("Building OWL knowledge base for GHTraffic data");
 
             // Object properties
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty(IRI.create(IOR + "#isPrecededBy"));
@@ -136,7 +136,7 @@ public class OWLFileGeneratorForGHTraffic {
 
             manager.saveOntology(ontology, new FileOutputStream(fileOut));
 
-            LOGGER.info("OWL File Generated");
+            LOGGER.info("GHTraffic OWL knowledge base generated");
 
         } catch (OWLOntologyCreationException x) {
             LOGGER.warn("Exception writing details to log ", x);
@@ -1239,7 +1239,7 @@ public class OWLFileGeneratorForGHTraffic {
     }
 
     public static void createOwlClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, String[] feature, List<String> valueLinesList) throws IOException {
-        LOGGER.info("Creating OWL Class lists for " + featureType);
+        LOGGER.info("Creating OWL class list for " + featureType+ " from extracted GHTraffic data");
 
         // set index of first and last columns to loop through each feature type
         int colStart = getColumnNumber(featureType, "start");

@@ -69,7 +69,7 @@ public class OWLFileGeneratorForSlack {
 
             createOwlClassLists(IOR, factory, subTrainingFileName);
 
-            LOGGER.info("Generating OWL File");
+            LOGGER.info("Building OWL knowledge base for Slack data");
 
             // OBJECT PROPERTIES
             OWLObjectProperty isPrecededBy = factory.getOWLObjectProperty(IRI.create((IOR + "#isPrecededBy")));
@@ -146,7 +146,7 @@ public class OWLFileGeneratorForSlack {
             File fileOut = new File("src/resources/" + owlFileName + ".owl");
             manager.saveOntology(ontology, new FileOutputStream(fileOut));
 
-            LOGGER.info("OWL File Generated");
+            LOGGER.info("Slack OWL knowledge base generated");
 
         } catch (OWLOntologyCreationException x) {
             LOGGER.warn("Exception writing details to log ", x);
@@ -958,7 +958,7 @@ public class OWLFileGeneratorForSlack {
     }
 
     public static void createOWLClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, List<String> valueLinesList, String[] headerText) throws IOException {
-        LOGGER.info("Creating OWL Class lists for " + featureType);
+        LOGGER.info("Creating OWL class list for " + featureType+ " from extracted Slack data");
 
         // set index of first and last columns to loop through each feature type
         int colStart = getColNumber(featureType, "start");

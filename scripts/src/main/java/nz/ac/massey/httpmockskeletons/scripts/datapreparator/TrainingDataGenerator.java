@@ -46,25 +46,21 @@ public class TrainingDataGenerator {
         if (learningType.toLowerCase().contains("dll")) {
             switch (dataSetTypeInput) {
                 case "ghtraffic":
-                    LOGGER.info("Generating OWL file for GHTraffic");
                     RawJSONToCSVConverterForGHTraffic.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/sub-ghtraffic-preprocessed.csv", "sub-ghtraffic-S-2.0.0.json");
                     CSVGeneratorForGHTraffic.csvFileGeneratorWithAttributes("src/resources/sub-ghtraffic-training", "src/resources/sub-ghtraffic-preprocessed");
                     OWLFileGeneratorForGHTraffic.generateOwlFile("ghtraffic-training","sub-ghtraffic-preprocessed", "sub-ghtraffic-training");
                     break;
                 case "slack":
-                    LOGGER.info("Generating OWL file for Slack");
                     RawXMLToCSVConverterForSlack.csvFileWriter(System.getProperty("user.dir") + File.separator + "src/resources/sub-slack-preprocessed.csv", "sub-slack-1.0.0.xml");
                     CSVGeneratorForSlack.csvFileGeneratorWithAttributes("src/resources/sub-slack-training", "src/resources/sub-slack-preprocessed");
                     OWLFileGeneratorForSlack.generateOwlFile("slack-training","sub-slack-preprocessed","sub-slack-training");
                     break;
                 case "twitter":
-                    LOGGER.info("Generating OWL file for Twitter");
                     RawXMLToCSVConverterForTwitter.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/sub-twitter-preprocessed.csv", "sub-twitter-1.0.0.xml");
                     CSVGeneratorForTwitter.csvFileGeneratorWithAttributes("src/resources/sub-twitter-training", "src/resources/sub-twitter-preprocessed");
                     OWLFileGeneratorForTwitter.generateOwlFile("twitter-training","sub-twitter-preprocessed","sub-twitter-training");
                     break;
                 case "googletasks":
-                    LOGGER.info("Generating OWL file for Google Tasks");
                     RawXMLToCSVConverterForGoogleTasks.fileWriter(System.getProperty("user.dir") + File.separator + "src/resources/googletasks-preprocessed.csv", "googletasks-1.0.0.xml");
                     CSVGeneratorForGoogleTasks.csvFileGeneratorWithAttributes("src/resources/googletasks-training", "src/resources/googletasks-preprocessed");
                     OWLFileGeneratorForGoogleTasks.generateOwlFile("googletasks-training","googletasks-preprocessed","googletasks-training");

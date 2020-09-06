@@ -108,7 +108,7 @@ public class OWLFileGeneratorForGoogleTasks {
             // create disjoint class lists
             createDisjointClassList(factory);
 
-            LOGGER.info("Generating OWL file");
+            LOGGER.info("Building OWL knowledge base for Google Tasks data");
 
             for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
                 List<String> n = new LinkedList<>();
@@ -145,7 +145,7 @@ public class OWLFileGeneratorForGoogleTasks {
 
             manager.saveOntology(ontology, new FileOutputStream(fileOut));
 
-            LOGGER.info("OWL File Created");
+            LOGGER.info("Google Tasks OWL knowledge base generated");
 
         } catch (OWLOntologyCreationException x) {
             LOGGER.warn(x);
@@ -972,7 +972,7 @@ public class OWLFileGeneratorForGoogleTasks {
     }
 
     public static void createClassList(IRI IOR, OWLDataFactory factory, FeatureType featureType, List<String> valueLinesList, String[] headerText) throws IOException {
-        LOGGER.info("Creating OWL Class lists for " + featureType);
+        LOGGER.info("Creating OWL class list for " + featureType+ " from extracted Google Tasks data");
 
         // set index of first and last columns to loop through each feature type
         int colStart = getColNumber(featureType, "start");

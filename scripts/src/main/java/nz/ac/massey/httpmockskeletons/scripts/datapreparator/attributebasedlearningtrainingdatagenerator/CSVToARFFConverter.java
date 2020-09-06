@@ -26,5 +26,6 @@ public class CSVToARFFConverter {
         saver.setFile(new File(fileName+".arff"));
         saver.writeBatch();
         // .arff file will be created in the output location
+        LOGGER.info("ARFF file generated");
     }
 }

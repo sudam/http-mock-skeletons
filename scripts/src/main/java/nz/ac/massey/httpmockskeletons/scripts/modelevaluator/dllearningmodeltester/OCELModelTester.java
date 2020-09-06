@@ -48,19 +48,19 @@ public class OCELModelTester {
 
         switch (datasetInput) {
             case "googletasks":
-                owlFile = "src/resources/googletasks-training-owl.owl";
+                owlFile = "src/resources/googletasks-training.owl";
                 preprocessedData = "src/resources/googletasks-preprocessed.csv";
                 break;
             case "slack":
-                owlFile = "src/resources/slack-training-owl.owl";
+                owlFile = "src/resources/slack-training.owl";
                 preprocessedData = "src/resources/sub-slack-preprocessed.csv";
                 break;
             case "ghtraffic":
-                owlFile = "src/resources/ghtraffic-training-owl.owl";
+                owlFile = "src/resources/ghtraffic-training.owl";
                 preprocessedData = "src/resources/sub-ghtraffic-preprocessed.csv";
                 break;
             case "twitter":
-                owlFile = "src/resources/twitter-training-owl.owl";
+                owlFile = "src/resources/twitter-training.owl";
                 preprocessedData = "src/resources/sub-twitter-preprocessed.csv";
                 break;
             default: {
