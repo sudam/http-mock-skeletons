@@ -104,15 +104,13 @@ public class ModelTrainer {
             } else if (cmd.hasOption("ilist")) { // Check attributes
                 datasetInput = cmd.getOptionValue("ilist").toString().toLowerCase();
                 ModelTrainer modelTrainer = new ModelTrainer(datasetInput);
-                System.out.println("Optimal target attribute indexes for predictions in " + datasetInput+" dataset (with name and type)");
-                System.out.println();
+                System.out.println("Optimal target attribute indexes for predictions in " + cmd.getOptionValue("ilist") +" dataset (with name and type) \n");
                 CheckTargetAttributesToLearn.AttributeDetails(args, options);
 
             } else if (cmd.hasOption("clist")) { // Check valid classes
                 datasetInput = cmd.getOptionValue("clist").toString().toLowerCase();
                 ModelTrainer modelTrainer = new ModelTrainer(datasetInput);
-                System.out.println("Optimal target class names for predictions in " + datasetInput+" dataset");
-                System.out.println();
+                System.out.println("Optimal target class names for predictions in " + cmd.getOptionValue("clist") +" dataset (with number of positive and negative examples) \n");
                 CheckTargetClassesToLearn.validClassDetails(datasetInput);
 
             } else {
@@ -123,5 +121,4 @@ public class ModelTrainer {
             System.out.println(e.getMessage());
         }
     }
-
 }

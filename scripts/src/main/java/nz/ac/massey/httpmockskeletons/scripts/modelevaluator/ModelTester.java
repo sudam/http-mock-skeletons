@@ -103,15 +103,14 @@ public class ModelTester {
             } else if (cmd.hasOption("ilist")) {
                 datasetInput = cmd.getOptionValue("ilist").toString().toLowerCase();
                 ModelTester modelTester = new ModelTester(datasetInput);
-                System.out.println("Optimal target attribute indexes for predictions in " + datasetInput+" dataset (with name and type)");
-                System.out.println();
+                System.out.println("Optimal target attribute indexes for predictions in " + datasetInput+" dataset (with name and type) \n");
                 CheckTargetAttributesToLearn.AttributeDetails(args, options);
 
             } else if (cmd.hasOption("clist")) { // Check valid classes
 
                 datasetInput = cmd.getOptionValue("clist").toString().toLowerCase();
                 ModelTester modelTester = new ModelTester(datasetInput);
-                System.out.println("Optimal target class names for predictions in " + datasetInput+" dataset");
+                System.out.println("Optimal target class names for predictions in " + datasetInput+" dataset \n");
                 System.out.println();
                 CheckTargetClassesToLearn.validClassDetails(datasetInput);
 

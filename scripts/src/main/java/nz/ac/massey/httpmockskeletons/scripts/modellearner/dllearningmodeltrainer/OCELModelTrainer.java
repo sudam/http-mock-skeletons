@@ -159,7 +159,11 @@ public class OCELModelTrainer {
                 las.stop();
             }
         } catch (Exception e) {
-            // LOGGER.info(e.getMessage());
+            if(e.getMessage().contains("OWLOntologyCreationIOException")){
+                System.out.println("File not found");
+            } else {
+                System.out.println(e.getMessage());
+            }
         }
     }
 

@@ -9,6 +9,7 @@ import org.dllearner.core.StringRenderer;
 import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,10 @@ public class CheckTargetClassesToLearn {
         ResponseBody
     }
 
+    public static void main(String[] args) {
+        validClassDetails("googletasks");
+    }
+
     public static void validClassDetails(String dataSetTypeInput) {
         try {
             datasetInput = dataSetTypeInput.toLowerCase();
@@ -59,9 +64,9 @@ public class CheckTargetClassesToLearn {
             getTargetClass(owlClassResponseHeaderList);
             getTargetClass(owlClassResponseBodyList);
 
-            for(String owlClass : owlClassStringList){
-                String targetClass = owlClass.split("#")[1].replace(">","");
-                if(targetClass.substring(targetClass.length() - 1).contains("\'")){
+            for (String owlClass : owlClassStringList) {
+                String targetClass = owlClass.split("#")[1].replace(">", "");
+                if (targetClass.substring(targetClass.length() - 1).contains("\'")) {
                     targetClass = targetClass.substring(0, targetClass.length() - 1);
                 }
                 getPosNegClasses(targetClass, datasetInput);
@@ -73,9 +78,27 @@ public class CheckTargetClassesToLearn {
             List<String> myList = new ArrayList<>(finalPositiveExampleList);
             myList.retainAll(finalNegativeExampleList);
 
-            for(String item : myList ){
-                String itemWithoutSingleQuotes = item.contains("\'") ? item.replace("\'","") : item;
-                System.out.println(itemWithoutSingleQuotes);
+            int positiveExampleCount = 0;
+            int negativeExampleCount = 0;
+
+            for (String item : myList) {
+                for (String pos : positiveExamplesList) {
+                    if(item.equals(pos)){
+                        positiveExampleCount ++;
+                    }
+                }
+
+                for (String pos : negativeExamplesList) {
+                    if(item.equals(pos)){
+                        negativeExampleCount ++;
+                    }
+                }
+
+                String itemWithoutSingleQuotes = item.contains("\'") ? item.replace("\'", "") : item;
+                System.out.println(itemWithoutSingleQuotes + " Positives: " + positiveExampleCount + " Negatives: " + negativeExampleCount);
+
+                positiveExampleCount = 0;
+                negativeExampleCount = 0;
             }
         } catch (Exception e) {
             LOGGER.warn(e.getMessage());

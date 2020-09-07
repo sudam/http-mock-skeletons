@@ -19,6 +19,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
 
@@ -150,7 +151,11 @@ public class OCELModelTester {
             new KFoldCrossValidation(las, lp, reasoner, 2, false);
 
         } catch (Exception e){
-            // LOGGER.info(e.getMessage());
+            if(e.getMessage().contains("OWLOntologyCreationIOException")){
+                System.out.println("File not found");
+            } else {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
