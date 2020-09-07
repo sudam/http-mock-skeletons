@@ -19,10 +19,11 @@ import java.util.TreeMap;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
- * Generate OWL Ontology for Slack
+ * this class generates owl knowledge base
+ * for Slack dataset
  *
- * @author Thilini Bhagya
- **/
+ * @author thilini bhagya
+ */
 
 public class OWLFileGeneratorForSlack {
     static BufferedReader br = null;

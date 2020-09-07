@@ -9,9 +9,13 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 
 /**
- * this class allows to check what are the possible target attributes and their indexes
- * to learn
+ * this class retrieve all possible target attributes and their indexes
+ * that are suitable to learn
+ * in each datasets
+ *
+ * @author thilini bhagya
  */
+
 public class CheckTargetAttributesToLearn {
     public static String datasetInput = "";
     public static String dataFileName = "";

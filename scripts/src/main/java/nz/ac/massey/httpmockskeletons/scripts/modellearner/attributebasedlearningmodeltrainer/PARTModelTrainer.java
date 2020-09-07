@@ -12,7 +12,7 @@ import weka.filters.unsupervised.attribute.Remove;
 import java.util.*;
 
 /**
- * This class trains models with PART classification algorithm
+ * this class trains models with PART classification algorithm
  *
  * @author thilini bhagya
  */

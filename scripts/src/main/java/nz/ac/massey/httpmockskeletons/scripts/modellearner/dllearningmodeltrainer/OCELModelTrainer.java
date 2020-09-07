@@ -1,7 +1,6 @@
 package nz.ac.massey.httpmockskeletons.scripts.modellearner.dllearningmodeltrainer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.dllearner.algorithms.ocel.OCEL;
 import org.dllearner.core.KnowledgeSource;
 import org.dllearner.core.StringRenderer;
@@ -17,15 +16,15 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 import nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction;
 import nz.ac.massey.httpmockskeletons.scripts.commons.Utilities;
-
 import java.util.*;
-
-import org.apache.commons.cli.*;
-
 import static nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction.transactions;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.GetJsonValueByKey;
 
-import nz.ac.massey.httpmockskeletons.scripts.modelevaluator.dllearningmodeltester.KFoldCrossValidation;
+/**
+ * this class can be used to learn OCEL class expressions
+ *
+ * @author thilini bhagya
+ */
 
 public class OCELModelTrainer {
     public static String owlFile = "";

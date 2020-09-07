@@ -13,7 +13,7 @@ import weka.filters.unsupervised.attribute.Remove;
 import java.util.Random;
 
 /**
- * This class trains models with PART classification algorithm
+ * this class test models with PART classification algorithm
  *
  * @author thilini bhagya
  */

@@ -16,10 +16,10 @@ import java.util.Date;
 import java.util.Scanner;
 
 /**
- * This class extracts resource,time,method,status,url,request/response body and headers data of each xml record
- * in raw output-googletasklists.xml file
- * sorts data using resource identifiers
- * saves data in CSV format
+ * this class extracts resource,time,method,status,url,request/response body and headers data of each xml record
+ * in raw Google Tasks dataset
+ * it then sorts data using resource identifiers
+ * and saves data in CSV format
  *
  * @author thilini bhagya
  */

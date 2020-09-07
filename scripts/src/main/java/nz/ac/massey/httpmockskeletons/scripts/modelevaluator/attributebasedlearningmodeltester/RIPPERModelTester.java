@@ -13,7 +13,7 @@ import weka.filters.unsupervised.attribute.Remove;
 import java.util.Random;
 
 /**
- * This class trains models with JRip classification algorithm
+ * this class test models with JRip classification algorithm
  *
  * @author thilini bhagya
  */

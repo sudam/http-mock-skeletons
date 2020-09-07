@@ -21,10 +21,10 @@ import java.util.*;
 import org.json.*;
 
 /**
- * This class extracts resource,time,method,status,url,request/response body and headers data of each xml record
- * in raw output-slack.xml file
- * sorts data using resource identifiers
- * saves data in CSV format
+ * this class extracts resource,time,method,status,url,request/response body and headers data of each xml record
+ * in raw Slack dataset
+ * it then sorts data using resource identifiers
+ * and saves data in CSV format
  *
  * @author thilini bhagya
  */

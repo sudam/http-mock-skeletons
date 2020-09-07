@@ -15,7 +15,7 @@ import java.util.Random;
 import org.apache.log4j.*;
 
 /**
- * This class trains models with J48 classification algorithm
+ * this class trains models with J48 classification algorithm
  *
  * @author thilini bhagya
  */

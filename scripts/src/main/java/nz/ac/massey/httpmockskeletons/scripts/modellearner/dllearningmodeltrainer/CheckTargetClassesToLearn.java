@@ -16,10 +16,12 @@ import static nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction.tra
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.GetJsonKeyByValue;
 
 /**
- * this class allows to check what are the possible target classes to learn
+ * this class retrieve all possible target classes names (with positive and negative examples)
+ * that are suitable to learn
+ * in each datasets
  *
- * @author Thilini Bhagya
- **/
+ * @author thilini bhagya
+ */
 
 public class CheckTargetClassesToLearn {
     public static String datasetInput = "";

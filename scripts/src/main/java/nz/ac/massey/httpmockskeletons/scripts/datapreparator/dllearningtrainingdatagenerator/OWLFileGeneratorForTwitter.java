@@ -18,10 +18,11 @@ import java.util.TreeMap;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
- * Generate OWL Ontology for Twitter
+ * this class generates owl knowledge base
+ * for Twitter dataset
  *
- * @author Thilini Bhagya
- **/
+ * @author thilini bhagya
+ */
 
 public class OWLFileGeneratorForTwitter {
     static BufferedReader br = null;

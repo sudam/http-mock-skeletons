@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.dllearner.core.AbstractCELA;
 import org.dllearner.core.AbstractLearningProblem;
 import org.dllearner.core.AbstractReasonerComponent;
@@ -23,8 +22,16 @@ import org.dllearner.utilities.owl.OWLClassExpressionUtils;
 import org.dllearner.utilities.statistics.Stat;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLIndividual;
-
 import com.google.common.collect.Sets;
+
+/**
+ * this class is used instead of original cross validation script
+ * implemented in DL-Learner
+ *
+ * to perform cross validation while calculating predictive accuracy together with precision and recall
+ *
+ * @author thilini bhagya
+ */
 
 public class KFoldCrossValidation {
     // statistical values

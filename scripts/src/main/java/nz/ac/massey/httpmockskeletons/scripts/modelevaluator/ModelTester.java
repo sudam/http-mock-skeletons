@@ -14,10 +14,10 @@ import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.readIndic
 import static nz.ac.massey.httpmockskeletons.scripts.modelevaluator.dllearningmodeltester.OCELModelTester.processWithOCEL;
 
 /**
- * this is the main class which can be used to run
- * different experiments with different algorithms and datasets
+ * this is the main class which can be used
+ * to test models with different algorithms and datasets
  *
- * @author thilinibhagya
+ * @author thilini bhagya
  */
 
 public class ModelTester {

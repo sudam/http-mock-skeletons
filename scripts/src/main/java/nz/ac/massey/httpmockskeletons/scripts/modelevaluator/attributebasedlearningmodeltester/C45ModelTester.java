@@ -13,7 +13,7 @@ import weka.filters.unsupervised.attribute.Remove;
 import java.util.Random;
 
 /**
- * This class trains models with J48 classification algorithm
+ * this class test models with J48 classification algorithm
  *
  * @author thilini bhagya
  */

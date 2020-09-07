@@ -6,7 +6,7 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.StringToNominal;
 
 /**
- * This class converts int and string attributes to nominal
+ * this class converts int and string attributes to nominal
  *
  * @author thilini bhagya
  */

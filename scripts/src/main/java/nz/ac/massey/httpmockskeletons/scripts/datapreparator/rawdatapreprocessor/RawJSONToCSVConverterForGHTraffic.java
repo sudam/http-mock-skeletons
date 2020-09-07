@@ -11,10 +11,10 @@ import java.util.*;
 import java.text.*;
 
 /**
- * This class extracts resource,time,method,status,url,request/response body and headers data of each json record
- * in raw ghtraffic-S-1.0.0.json file
- * sorts data using resource identifiers
- * saves data in CSV format
+ * this class extracts resource,time,method,status,url,request/response body and headers data of each json record
+ * in raw GHTraffic dataset
+ * it then sorts data using resource identifiers
+ * and saves data in CSV format
  *
  * @author thilini bhagya
  */

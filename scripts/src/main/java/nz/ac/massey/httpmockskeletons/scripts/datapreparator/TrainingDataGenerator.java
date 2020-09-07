@@ -14,10 +14,12 @@ import org.apache.log4j.Logger;
 import java.io.File;
 
 /**
- * Prepare necessary datasets for each learning type [attribute based learning / description logic learning]
+ * this is the main class which can be used
+ * to generate training data from raw datasets
+ * suitable for attribute-based learning and description logic learning
  *
- * @author Thilini Bhagya
- **/
+ * @author thilini bhagya
+ */
 
 public class TrainingDataGenerator {
     private static Logger LOGGER = Logger.getLogger(TrainingDataGenerator.class);

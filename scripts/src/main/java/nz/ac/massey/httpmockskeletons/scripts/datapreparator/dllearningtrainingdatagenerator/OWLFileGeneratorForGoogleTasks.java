@@ -16,10 +16,11 @@ import java.util.stream.Collectors;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
- * Generate OWL Ontology for Google Tasks
+ * this class generates owl knowledge base
+ * for Google Tasks dataset
  *
- * @author Thilini Bhagya
- **/
+ * @author thilini bhagya
+ */
 
 public class OWLFileGeneratorForGoogleTasks {
     static BufferedReader br = null;

@@ -12,10 +12,10 @@ import java.util.*;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
- * This class generates csv file for Slack dataset
- * related with attributes
+ * this class extracts attributes-values and generates a csv file
+ * for Slack dataset
  *
- * @author thilinibhagya
+ * @author thilini bhagya
  */
 
     public class CSVGeneratorForSlack {

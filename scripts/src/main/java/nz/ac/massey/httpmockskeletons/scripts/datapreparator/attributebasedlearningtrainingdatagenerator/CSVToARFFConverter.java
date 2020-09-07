@@ -7,10 +7,12 @@ import weka.core.converters.CSVLoader;
 import java.io.File;
 
 /**
- * This class uses to generate arff file based on csv
+ * this class generates arff file based on csv
  * to be used as input to weka
+ *
  * @author thilinibhagya
  */
+
 public class CSVToARFFConverter {
     static org.apache.log4j.Logger LOGGER = Logging.getLogger(CSVToARFFConverter.class);
     public static void convertCSVDataFileToARFFFormat(String fileName) throws Exception {

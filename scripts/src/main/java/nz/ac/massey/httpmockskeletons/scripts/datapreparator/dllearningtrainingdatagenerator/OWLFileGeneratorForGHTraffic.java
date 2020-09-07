@@ -16,10 +16,11 @@ import java.util.stream.Collectors;
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
- * Generate OWL Ontology for GHTraffic
+ * this class generates owl knowledge base
+ * for GHTraffic dataset
  *
- * @author Thilini Bhagya
- **/
+ * @author thilini bhagya
+ */
 
 public class OWLFileGeneratorForGHTraffic {
     static BufferedReader br = null;

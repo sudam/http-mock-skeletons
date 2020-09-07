@@ -5,11 +5,16 @@ import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction;
 import nz.ac.massey.httpmockskeletons.scripts.commons.URITokeniser;
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.FileWriter;
 import java.util.*;
-
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
+
+/**
+ * this class extracts attributes-values and generates a csv file
+ * for Google Tasks dataset
+ *
+ * @author thilini bhagya
+ */
 
 public class CSVGeneratorForGoogleTasks {
     static org.apache.log4j.Logger LOGGER = Logging.getLogger(CSVGeneratorForGoogleTasks.class);
