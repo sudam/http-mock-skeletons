@@ -1,16 +1,9 @@
 package nz.ac.massey.httpmockskeletons.scripts.datapreparator.rawdatapreprocessor;
-import jdk.jfr.events.FileReadEvent;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.junit.Test;
 
-import java.io.File;
-import java.io.FileReader;
+import org.junit.Test;
 import java.io.IOException;
 import java.text.ParseException;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class RawJSONToCSVConverterTest {
     @Test

@@ -9,9 +9,11 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- * This class tokenise urls and returns values
+ * this class tokenise urls and returns values
+ *
  * @author thilini bhagya
  */
+
 public class URITokeniser {
     public static String GetURLScheme(String uri) throws URISyntaxException {
         //check existence of value

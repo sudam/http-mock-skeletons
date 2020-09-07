@@ -6,14 +6,14 @@ import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+
+/**
+ * this class having used by other classes
+ *
+ * @author thilini bhagya
+ */
 
 public class Utilities {
 

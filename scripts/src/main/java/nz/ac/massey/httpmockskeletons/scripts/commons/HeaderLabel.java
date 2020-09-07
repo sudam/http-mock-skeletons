@@ -4,9 +4,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-
 import java.io.File;
 import java.util.*;
+
+/**
+ * this class forms header labels
+ *
+ * @author thilini bhagya
+ */
 
 public class HeaderLabel {
 

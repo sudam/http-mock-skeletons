@@ -6,8 +6,11 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * This class forms http transactions with their properties
+ * this class forms http transactions with their properties
+ *
+ * @author thilini bhagya
  */
+
 public class HTTPTransaction {
 
     public String resource, transaction, time, method, code, url, responseBody, requestHeaders, responseHeaders, requestBody;
