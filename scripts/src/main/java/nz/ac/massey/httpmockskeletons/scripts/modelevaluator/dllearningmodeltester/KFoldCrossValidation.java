@@ -49,17 +49,6 @@ public class KFoldCrossValidation {
     protected Stat pcision = new Stat();
     protected Stat pcisionTraining = new Stat();
 
-
-    protected Stat trainingCompletenessStat = new Stat();
-    protected Stat trainingCorrectnessStat = new Stat();
-
-    protected Stat testingCompletenessStat = new Stat();
-    protected Stat testingCorrectnessStat = new Stat();
-
-    public KFoldCrossValidation() {
-
-    }
-
     public KFoldCrossValidation(AbstractCELA la, AbstractLearningProblem lp, AbstractReasonerComponent rs, int folds, boolean leaveOneOut) {
 
         DecimalFormat df = new DecimalFormat();
@@ -289,16 +278,8 @@ public class KFoldCrossValidation {
         return str;
     }
 
-    public Stat getAccuracy() {
-        return accuracy;
-    }
-
     public Stat getLength() {
         return length;
-    }
-
-    public Stat getRuntime() {
-        return runtime;
     }
 
     protected void outputWriter(String output) {
@@ -309,14 +290,5 @@ public class KFoldCrossValidation {
             System.out.println(output);
         }
 
-    }
-
-    public Stat getfMeasure() {
-        return fMeasure;
-    }
-
-
-    public Stat getfMeasureTraining() {
-        return fMeasureTraining;
     }
 }

@@ -27,7 +27,7 @@ public class CheckTargetAttributesToLearn {
             CommandLineParser parser = new BasicParser();
             CommandLine cmd = parser.parse(options, args);
 
-                datasetInput = cmd.getOptionValue("ilist").toLowerCase();
+            datasetInput = cmd.getOptionValue("ilist").toLowerCase();
 
             switch (datasetInput) {
                 case "googletasks":

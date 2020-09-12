@@ -7,9 +7,7 @@ import nz.ac.massey.httpmockskeletons.scripts.modelevaluator.attributebasedlearn
 import nz.ac.massey.httpmockskeletons.scripts.modelevaluator.attributebasedlearningmodeltester.RIPPERModelTester;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.ArrayUtils;
-
 import java.io.IOException;
-
 import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.readIndices;
 import static nz.ac.massey.httpmockskeletons.scripts.modelevaluator.dllearningmodeltester.OCELModelTester.processWithOCEL;
 

@@ -15,19 +15,19 @@ import java.util.StringTokenizer;
  */
 
 public class URITokeniser {
-    public static String GetURLScheme(String uri) throws URISyntaxException {
+    public static String getURLScheme(String uri) throws URISyntaxException {
         //check existence of value
         URI url = new URI(uri);
         return url.getScheme();
     }
 
-    public static String GetUriHost(String uri) throws URISyntaxException {
+    public static String getUriHost(String uri) throws URISyntaxException {
         //check existence of value
         URI url = new URI(uri);
         return url.getHost();
     }
 
-    public static Map<String, String> GetURLCoreTokenMap(String uri) throws URISyntaxException {
+    public static Map<String, String> getURLCoreTokenMap(String uri) throws URISyntaxException {
         int i=1;
         URI url = new URI(uri);
         //core in a url
@@ -44,7 +44,7 @@ public class URITokeniser {
 
     }
 
-    public static Map<String, String> GetURLQueryTokenMap(String uri) throws URISyntaxException, UnsupportedEncodingException {
+    public static Map<String, String> getURLQueryTokenMap(String uri) throws URISyntaxException, UnsupportedEncodingException {
         int i=1;
         URI url = new URI(uri);
         Map<String, String> maps = new HashMap<String, String>();
@@ -67,25 +67,11 @@ public class URITokeniser {
 
     public static boolean checkURLCoreTokenMapContainsValue(String uri, String value) throws URISyntaxException {
         //check existence of value
-        Map<String, String> newmap = GetURLCoreTokenMap(uri);
+        Map<String, String> newmap = getURLCoreTokenMap(uri);
         return newmap.containsValue(value);
     }
 
-    public static String GetURLQuery(String uri) throws URISyntaxException {
-        //check existence of value
-        URI url = new URI(uri);
-        String a = url.getQuery();
-        return a;
-    }
-
-    public static String GetURLFragment(String uri) throws URISyntaxException {
-        //check existence of value
-        URI url = new URI(uri);
-        String a = url.getFragment();
-        return a;
-    }
-
-    public static Map<String, String> GetFragmentMap(String uri) throws URISyntaxException, UnsupportedEncodingException {
+    public static Map<String, String> getFragmentMap(String uri) throws URISyntaxException, UnsupportedEncodingException {
         int i=1;
         URI url = new URI(uri);
         Map<String, String> maps = new HashMap<String, String>();

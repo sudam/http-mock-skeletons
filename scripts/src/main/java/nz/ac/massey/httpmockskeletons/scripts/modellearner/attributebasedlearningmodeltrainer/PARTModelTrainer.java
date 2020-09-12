@@ -2,20 +2,18 @@ package nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearni
 
 import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import org.apache.log4j.Logger;
-import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.rules.PART;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 
-import java.util.*;
-
 /**
  * this class trains models with PART classification algorithm
  *
  * @author thilini bhagya
  */
+
 public class PARTModelTrainer {
     static Logger LOGGER = Logging.getLogger(C45ModelTrainer.class);
 

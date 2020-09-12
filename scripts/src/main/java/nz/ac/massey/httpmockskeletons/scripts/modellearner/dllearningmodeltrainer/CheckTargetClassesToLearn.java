@@ -2,7 +2,7 @@ package nz.ac.massey.httpmockskeletons.scripts.modellearner.dllearningmodeltrain
 
 import nz.ac.massey.httpmockskeletons.scripts.Logging;
 import nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction;
-import nz.ac.massey.httpmockskeletons.scripts.commons.HeaderLabel;
+import nz.ac.massey.httpmockskeletons.scripts.commons.OWLClassLabelsJSONArrays;
 import nz.ac.massey.httpmockskeletons.scripts.commons.Utilities;
 import org.apache.commons.lang3.StringUtils;
 import org.dllearner.core.StringRenderer;
@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction.transactions;
-import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.GetJsonKeyByValue;
+import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.*;
 
 /**
  * this class retrieve all possible target classes names (with positive and negative examples)
@@ -28,15 +28,12 @@ public class CheckTargetClassesToLearn {
     public static String datasetInput = "";
     static OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
     static OWLOntology ontology;
-
     public static String preprocessedData = "";
-    public static String keyInput = ""; // input parameter for Key
-    public static String valueInput = ""; // input parameter for Value
+    public static String keyInput = "";
+    public static String valueInput = "";
     public static String ResponseTypeString;
-
     public static List<String> positiveExamplesList = new ArrayList<>();
     public static List<String> negativeExamplesList = new ArrayList<>();
-
     public static List<OWLClass> owlClassResponseStatusCodeList = new ArrayList<>();
     public static List<OWLClass> owlClassResponseBodyList = new ArrayList<>();
     public static List<OWLClass> owlClassResponseHeaderList = new ArrayList<>();
@@ -50,8 +47,40 @@ public class CheckTargetClassesToLearn {
         ResponseBody
     }
 
-    public static void main(String[] args) {
-        validClassDetails("googletasks");
+    public CheckTargetClassesToLearn(String datasetInput) throws OWLOntologyCreationException {
+
+        IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
+        ontology = manager.createOntology(IOR);
+        OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+
+        switch (datasetInput) {
+            case "googletasks":
+                preprocessedData = "src/resources/googletasks-preprocessed.csv";
+                owlClassResponseStatusCodeList = getOWLClasses("googletasks-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = getOWLClasses("googletasks-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = getOWLClasses("googletasks-training", ResponseType.ResponseHeader.toString());
+                break;
+            case "slack":
+                preprocessedData = "src/resources/sub-slack-preprocessed.csv";
+                owlClassResponseStatusCodeList = getOWLClasses("slack-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = getOWLClasses("slack-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = getOWLClasses("slack-training", ResponseType.ResponseHeader.toString());
+                break;
+            case "ghtraffic":
+                preprocessedData = "src/resources/sub-ghtraffic-preprocessed.csv";
+                owlClassResponseStatusCodeList = getOWLClasses("ghtraffic-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = getOWLClasses("ghtraffic-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = getOWLClasses("ghtraffic-training", ResponseType.ResponseHeader.toString());
+                break;
+            case "twitter":
+                preprocessedData = "src/resources/sub-twitter-preprocessed.csv";
+                owlClassResponseStatusCodeList = getOWLClasses("twitter-training", ResponseType.ResponseStatusCode.toString());
+                owlClassResponseBodyList = getOWLClasses("twitter-training", ResponseType.ResponseBody.toString());
+                owlClassResponseHeaderList = getOWLClasses("twitter-training", ResponseType.ResponseHeader.toString());
+                break;
+            default: {
+            }
+        }
     }
 
     public static void validClassDetails(String dataSetTypeInput) {
@@ -75,8 +104,8 @@ public class CheckTargetClassesToLearn {
             List<String> finalPositiveExampleList = positiveExamplesList.stream().distinct().collect(Collectors.toList());
             List<String> finalNegativeExampleList = negativeExamplesList.stream().distinct().collect(Collectors.toList());
 
-            List<String> myList = new ArrayList<>(finalPositiveExampleList);
-            myList.retainAll(finalNegativeExampleList);
+            List<String> myList = new ArrayList<>(finalNegativeExampleList);
+            myList.retainAll(finalPositiveExampleList);
 
             int positiveExampleCount = 0;
             int negativeExampleCount = 0;
@@ -95,49 +124,19 @@ public class CheckTargetClassesToLearn {
                 }
 
                 String itemWithoutSingleQuotes = item.contains("\'") ? item.replace("\'", "") : item;
-                System.out.println(itemWithoutSingleQuotes + " Positives: " + positiveExampleCount + " Negatives: " + negativeExampleCount);
+                if(itemWithoutSingleQuotes.contains("ResponseBody_assignee.gravatar_id")
+                        || itemWithoutSingleQuotes.contains("ResponseBody_milestone.creator.gravatar_id")
+                        || itemWithoutSingleQuotes.contains("ResponseBody_milestone.description")
+                        || itemWithoutSingleQuotes.contains("ResponseBody_user.gravatar_id")) {
+                } else {
+                    System.out.println(itemWithoutSingleQuotes + " Positives: " + positiveExampleCount + " Negatives: " + negativeExampleCount);
+                }
 
                 positiveExampleCount = 0;
                 negativeExampleCount = 0;
             }
         } catch (Exception e) {
             LOGGER.warn(e.getMessage());
-        }
-    }
-
-    public CheckTargetClassesToLearn(String datasetInput) throws OWLOntologyCreationException {
-
-        IRI IOR = IRI.create("http://owl.api/httptransactions.owl");
-        ontology = manager.createOntology(IOR);
-        OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-
-        switch (datasetInput) {
-            case "googletasks":
-                preprocessedData = "src/resources/googletasks-preprocessed.csv";
-                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("googletasks-training", ResponseType.ResponseStatusCode.toString());
-                owlClassResponseBodyList = HeaderLabel.getOWLClasses("googletasks-training", ResponseType.ResponseBody.toString());
-                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("googletasks-training", ResponseType.ResponseHeader.toString());
-                break;
-            case "slack":
-                preprocessedData = "src/resources/sub-slack-preprocessed.csv";
-                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("slack-training", ResponseType.ResponseStatusCode.toString());
-                owlClassResponseBodyList = HeaderLabel.getOWLClasses("slack-training", ResponseType.ResponseBody.toString());
-                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("slack-training", ResponseType.ResponseHeader.toString());
-                break;
-            case "ghtraffic":
-                preprocessedData = "src/resources/sub-ghtraffic-preprocessed.csv";
-                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("ghtraffic-training", ResponseType.ResponseStatusCode.toString());
-                owlClassResponseBodyList = HeaderLabel.getOWLClasses("ghtraffic-training", ResponseType.ResponseBody.toString());
-                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("ghtraffic-training", ResponseType.ResponseHeader.toString());
-                break;
-            case "twitter":
-                preprocessedData = "src/resources/sub-twitter-preprocessed.csv";
-                owlClassResponseStatusCodeList = HeaderLabel.getOWLClasses("twitter-training", ResponseType.ResponseStatusCode.toString());
-                owlClassResponseBodyList = HeaderLabel.getOWLClasses("twitter-training", ResponseType.ResponseBody.toString());
-                owlClassResponseHeaderList = HeaderLabel.getOWLClasses("twitter-training", ResponseType.ResponseHeader.toString());
-                break;
-            default: {
-            }
         }
     }
 
@@ -195,29 +194,29 @@ public class CheckTargetClassesToLearn {
 
                         switch (datasetInput) {
                             case "googletasks":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeaderGoogle(mm, keyInput));
-                                jsonObject = HeaderLabel.getGoogleArray();
+                                responseHeaderValue = String.valueOf(Utilities.responseHeaderGoogle(mm, keyInput));
+                                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayGoogleTasks();
                                 break;
                             case "slack":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeaderSlack(mm, keyInput));
-                                jsonObject = HeaderLabel.getSlackArray();
+                                responseHeaderValue = String.valueOf(Utilities.responseHeaderSlack(mm, keyInput));
+                                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArraySlack();
                                 break;
                             case "twitter":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeadersTwitter(mm, keyInput));
-                                jsonObject = HeaderLabel.getTwitterArray();
+                                responseHeaderValue = String.valueOf(Utilities.responseHeadersTwitter(mm, keyInput));
+                                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayTwitter();
                                 break;
                             case "ghtraffic":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeadersGHTraffic(mm, keyInput));
-                                jsonObject = HeaderLabel.getGHTrafficArray();
+                                responseHeaderValue = String.valueOf(Utilities.responseHeadersGHTraffic(mm, keyInput));
+                                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayGHTraffic();
                                 break;
                             default: {
                             }
                         }
 
-                        if (responseHeaderValue.equals(valueInput)) {
-                            positiveExamplesList.add(ResponseType.ResponseHeader + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                        if (responseHeaderValue.equals(getJsonValueByKey(valueInput, datasetInput))) {
+                            positiveExamplesList.add(ResponseType.ResponseHeader + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                         } else {
-                            negativeExamplesList.add(ResponseType.ResponseHeader + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                            negativeExamplesList.add(ResponseType.ResponseHeader + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                         }
                     }
 
@@ -227,91 +226,92 @@ public class CheckTargetClassesToLearn {
 
                         // GOOGLE
                         if (dataSetTypeInput.equals("googletasks")) {
-                            jsonObject = HeaderLabel.getGoogleArray();
+                            jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayGoogleTasks();
+
                             if (!keyInput.contains(".")) {
-                                if (String.valueOf(Utilities.ResponseBodyGoogle(mm, keyInput, null, null)).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (String.valueOf(Utilities.responseBodyGoogle(mm, keyInput, null, null)).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (String.valueOf(Utilities.ResponseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (String.valueOf(Utilities.responseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 2) {
-                                if (String.valueOf(Utilities.ResponseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (String.valueOf(Utilities.responseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             }
                         }
 
                         // SLACK
                         else if (dataSetTypeInput.equals("slack")) {
-                            jsonObject = HeaderLabel.getSlackArray();
+                            jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArraySlack();
                             if (StringUtils.countMatches(keyInput, ".") == 0) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodySlack(mm, keyInput, null, null))).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodySlack(mm, keyInput, null, null))).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null))).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null))).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 2) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2]))).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2]))).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             }
                         }
 
                         // TWITTER
                         else if (dataSetTypeInput.equals("twitter")) {
-                            jsonObject = HeaderLabel.getTwitterArray();
+                            jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayTwitter();
                             if (StringUtils.countMatches(keyInput, ".") == 0) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodyTwitter(mm, keyInput))).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodyTwitter(mm, keyInput))).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodyInsideTwitter(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1]))).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodyInsideTwitter(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1]))).contains(valueInput)) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             }
                         }
 
                         // GHTRAFFIC
                         else if (dataSetTypeInput.equals("ghtraffic")) {
-                            jsonObject = HeaderLabel.getGHTrafficArray();
+                            jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayGHTraffic();
 
                             if (!keyInput.contains(".")) {
-                                if (String.valueOf(Utilities.ResponseBodyGHTraffic(mm, keyInput, null, null)).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (String.valueOf(Utilities.responseBodyGHTraffic(mm, keyInput, null, null)).contains(getJsonValueByKey(valueInput,"ghtraffic"))) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (String.valueOf(Utilities.ResponseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (String.valueOf(Utilities.responseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(getJsonValueByKey(valueInput,"ghtraffic"))) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 2) {
-                                if (String.valueOf(Utilities.ResponseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(valueInput)) {
-                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                if (String.valueOf(Utilities.responseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(getJsonValueByKey(valueInput,"ghtraffic"))) {
+                                    positiveExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 } else {
-                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + GetJsonKeyByValue(valueInput, jsonObject));
+                                    negativeExamplesList.add(ResponseType.ResponseBody + "_" + keyInput + "_" + getJsonKeyByValue(valueInput, jsonObject));
                                 }
                             }
                         }

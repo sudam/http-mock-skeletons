@@ -6,7 +6,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -28,6 +27,7 @@ import org.json.*;
  *
  * @author thilini bhagya
  */
+
 public class RawXMLToCSVConverterForSlack {
     static org.apache.log4j.Logger LOGGER = Logging.getLogger(RawXMLToCSVConverterForSlack.class);
     //read xml file, extract http features and write to a csv file
@@ -102,7 +102,7 @@ public class RawXMLToCSVConverterForSlack {
                                 writer.append('|');
                             } else {
                                 String url = eElement.getElementsByTagName("java.net.URL").item(0).getTextContent();
-                                writer.append(URITokeniser.GetURLQueryTokenMap(url).get("queryToken3").substring(3));
+                                writer.append(URITokeniser.getURLQueryTokenMap(url).get("queryToken3").substring(3));
                                 writer.append('|');
                             }
                         } else {

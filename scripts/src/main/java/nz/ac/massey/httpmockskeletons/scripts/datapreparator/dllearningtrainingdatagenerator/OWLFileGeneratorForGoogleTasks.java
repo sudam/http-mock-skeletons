@@ -178,6 +178,9 @@ public class OWLFileGeneratorForGoogleTasks {
     }
 
     public static String refineValueGoogle(String value) {
+        // escape special characters and notations from each OWL class name and
+        // use the original class name as OWL class label when creating the OWL class
+
         if (value.contains("application/json")) {
             value = "json";
         }
@@ -223,13 +226,13 @@ public class OWLFileGeneratorForGoogleTasks {
         if (featureType == FeatureType.RequestHeader) {
             String RequestHeaderValue = "";
             if (HeaderKey.equals("HasAuthorisationToken")) {
-                RequestHeaderValue = String.valueOf(HasAuthorizationToken(mm));
+                RequestHeaderValue = String.valueOf(hasAuthorizationToken(mm));
             } else if (HeaderKey.equals("HasRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasRequestPayloadGoogle(String.valueOf(mm.get(0).getMethod()), String.valueOf(mm.get(0).getCode())));
+                RequestHeaderValue = String.valueOf(hasRequestPayloadGoogle(String.valueOf(mm.get(0).getMethod()), String.valueOf(mm.get(0).getCode())));
             } else if (HeaderKey.equals("HasValidRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasValidRequestPayloadGoogle(String.valueOf(mm.get(0).getMethod()), String.valueOf(mm.get(0).getCode())));
+                RequestHeaderValue = String.valueOf(hasValidRequestPayloadGoogle(String.valueOf(mm.get(0).getMethod()), String.valueOf(mm.get(0).getCode())));
             } else {
-                RequestHeaderValue = String.valueOf(Utilities.RequestHeaderGoogle(mm, HeaderKey));
+                RequestHeaderValue = String.valueOf(Utilities.requestHeaderGoogle(mm, HeaderKey));
             }
 
             if (RequestHeaderValue.contains("\'")) {
@@ -241,7 +244,7 @@ public class OWLFileGeneratorForGoogleTasks {
 
             return RequestHeaderValue.equals(HeaderValue);
         } else if (featureType == FeatureType.ResponseHeader) {
-            String responseHeaderValue = String.valueOf(Utilities.ResponseHeaderGoogle(mm, HeaderKey));
+            String responseHeaderValue = String.valueOf(Utilities.responseHeaderGoogle(mm, HeaderKey));
             if (responseHeaderValue.contains("\'")) {
                 responseHeaderValue = responseHeaderValue.replaceAll("\'", "");
             }
@@ -251,12 +254,12 @@ public class OWLFileGeneratorForGoogleTasks {
 
             return responseHeaderValue.equals(HeaderValue);
         } else if (featureType == FeatureType.ResponseBody && !HeaderKey.contains(".")) {
-            return String.valueOf(Utilities.ResponseBodyGoogle(mm, HeaderKey, null, null)).toUpperCase().equals(HeaderValue.toUpperCase());
+            return String.valueOf(Utilities.responseBodyGoogle(mm, HeaderKey, null, null)).toUpperCase().equals(HeaderValue.toUpperCase());
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(HeaderKey, ".") == 1) {
             String message = HeaderKey.split("\\.")[0];
             String bot_id = HeaderKey.split("\\.")[1];
 
-            if (String.valueOf(Utilities.ResponseBodyGoogle(mm, message, bot_id, null)).equals(HeaderValue)) {
+            if (String.valueOf(Utilities.responseBodyGoogle(mm, message, bot_id, null)).equals(HeaderValue)) {
                 return true;
             }
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(HeaderKey, ".") == 2) {
@@ -264,12 +267,12 @@ public class OWLFileGeneratorForGoogleTasks {
             String edited = HeaderKey.split("\\.")[1];
             String user = HeaderKey.split("\\.")[2];
 
-            if (String.valueOf(Utilities.ResponseBodyGoogle(mm, message, edited, user)).equals(HeaderValue)) {
+            if (String.valueOf(Utilities.responseBodyGoogle(mm, message, edited, user)).equals(HeaderValue)) {
                 return true;
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriSchema")) {
             try {
-                if (URITokeniser.GetURLScheme(mm.get(0).getURL()).equals(HeaderValue)) {
+                if (URITokeniser.getURLScheme(mm.get(0).getURL()).equals(HeaderValue)) {
                     return true;
                 }
             } catch (URISyntaxException e) {
@@ -277,7 +280,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriHost")) {
             try {
-                if (URITokeniser.GetUriHost(mm.get(0).getURL()).equals(HeaderValue)) {
+                if (URITokeniser.getUriHost(mm.get(0).getURL()).equals(HeaderValue)) {
                     return true;
                 }
             } catch (URISyntaxException e) {
@@ -285,7 +288,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturipathtoken1")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -297,7 +300,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturipathtoken2")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -309,7 +312,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturipathtoken3")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -321,7 +324,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturipathtoken4")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -333,7 +336,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturipathtoken5")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -345,7 +348,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken1")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -359,7 +362,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken2")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -373,7 +376,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken3")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -387,7 +390,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken4")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -401,7 +404,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturifragmenttoken1")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -415,7 +418,7 @@ public class OWLFileGeneratorForGoogleTasks {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturifragmenttoken2")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }

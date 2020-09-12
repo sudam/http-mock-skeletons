@@ -4,7 +4,6 @@ import nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction;
 import nz.ac.massey.httpmockskeletons.scripts.commons.Utilities;
 import nz.ac.massey.httpmockskeletons.scripts.modellearner.dllearningmodeltrainer.OCELModelTrainer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.dllearner.algorithms.ocel.OCEL;
 import org.dllearner.core.KnowledgeSource;
 import org.dllearner.core.StringRenderer;
@@ -18,13 +17,10 @@ import org.semanticweb.owlapi.model.PrefixManager;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.util.*;
 
 import static nz.ac.massey.httpmockskeletons.scripts.commons.HTTPTransaction.transactions;
-import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.GetJsonValueByKey;
+import static nz.ac.massey.httpmockskeletons.scripts.commons.Utilities.getJsonValueByKey;
 
 public class OCELModelTester {
     public static String owlFile = "";
@@ -34,14 +30,6 @@ public class OCELModelTester {
     public static String datasetInput = ""; // Google / Slack / GHTraffic / Twitter
     public static OCELModelTrainer.ResponseType ResponseTypeInput; // input parameter for Response Type
     public static List<String> classInstanceList = new ArrayList<String>();
-
-    // private static Logger LOGGER = Logger.getLogger(OCELModelTrainer.class);
-
-    public enum ResponseType {
-        ResponseHeader,
-        ResponseStatusCode,
-        ResponseBody
-    }
 
     public OCELModelTester(String datasetInput, String responseTypeInput, String key, String value) {
         keyInput = key;
@@ -191,19 +179,19 @@ public class OCELModelTester {
                         // GOOGLE
                         if (dataSetTypeInput.equals("googletasks")) {
                             if (!keyInput.contains(".")) {
-                                if (String.valueOf(Utilities.ResponseBodyGoogle(mm, keyInput, null, null)).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (String.valueOf(Utilities.responseBodyGoogle(mm, keyInput, null, null)).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (String.valueOf(Utilities.ResponseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (String.valueOf(Utilities.responseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 2) {
-                                if (String.valueOf(Utilities.ResponseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (String.valueOf(Utilities.responseBodyGoogle(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
@@ -214,19 +202,19 @@ public class OCELModelTester {
                         // SLACK
                         else if (dataSetTypeInput.equals("slack")) {
                             if (StringUtils.countMatches(keyInput, ".") == 0) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodySlack(mm, keyInput, null, null))).contains(valueInput)) {
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodySlack(mm, keyInput, null, null))).contains(valueInput)) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null))).contains(valueInput)) {
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null))).contains(valueInput)) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 2) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2]))).contains(valueInput)) {
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodySlack(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2]))).contains(valueInput)) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
@@ -237,13 +225,13 @@ public class OCELModelTester {
                         // TWITTER
                         else if (dataSetTypeInput.equals("twitter")) {
                             if (StringUtils.countMatches(keyInput, ".") == 0) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodyTwitter(mm, keyInput))).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodyTwitter(mm, keyInput))).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (getRefinedValue(String.valueOf(Utilities.ResponseBodyInsideTwitter(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1]))).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (getRefinedValue(String.valueOf(Utilities.responseBodyInsideTwitter(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1]))).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
@@ -254,19 +242,19 @@ public class OCELModelTester {
                         // GHTRAFFIC
                         else if (dataSetTypeInput.equals("ghtraffic")) {
                             if (!keyInput.contains(".")) {
-                                if (String.valueOf(Utilities.ResponseBodyGHTraffic(mm, keyInput, null, null)).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (String.valueOf(Utilities.responseBodyGHTraffic(mm, keyInput, null, null)).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 1) {
-                                if (String.valueOf(Utilities.ResponseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (String.valueOf(Utilities.responseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], null)).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
                                 }
                             } else if (StringUtils.countMatches(keyInput, ".") == 2) {
-                                if (String.valueOf(Utilities.ResponseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(GetJsonValueByKey(valueInput, datasetInput).toString())) {
+                                if (String.valueOf(Utilities.responseBodyGHTraffic(mm, keyInput.split("\\.")[0], keyInput.split("\\.")[1], keyInput.split("\\.")[2])).contains(getJsonValueByKey(valueInput, datasetInput).toString())) {
                                     addToPositiveExamples(positiveExamples, mm, df, pm);
                                 } else {
                                     addToNegativeExamples(negativeExamples, mm, df, pm);
@@ -281,22 +269,22 @@ public class OCELModelTester {
 
                         switch (datasetInput) {
                             case "googletasks":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeaderGoogle(mm, keyInput));
+                                responseHeaderValue = String.valueOf(Utilities.responseHeaderGoogle(mm, keyInput));
                                 break;
                             case "slack":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeaderSlack(mm, keyInput));
+                                responseHeaderValue = String.valueOf(Utilities.responseHeaderSlack(mm, keyInput));
                                 break;
                             case "twitter":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeadersTwitter(mm, keyInput));
+                                responseHeaderValue = String.valueOf(Utilities.responseHeadersTwitter(mm, keyInput));
                                 break;
                             case "ghtraffic":
-                                responseHeaderValue = String.valueOf(Utilities.ResponseHeadersGHTraffic(mm, keyInput));
+                                responseHeaderValue = String.valueOf(Utilities.responseHeadersGHTraffic(mm, keyInput));
                                 break;
                             default: {
                             }
                         }
 
-                        if (responseHeaderValue.equals(GetJsonValueByKey(valueInput, datasetInput))) {
+                        if (responseHeaderValue.equals(getJsonValueByKey(valueInput, datasetInput))) {
                             addToPositiveExamples(positiveExamples, mm, df, pm);
                         } else {
                             addToNegativeExamples(negativeExamples, mm, df, pm);
@@ -313,35 +301,6 @@ public class OCELModelTester {
 
     public static void addToNegativeExamples(Set<OWLIndividual> negativeExamples, List<HTTPTransaction> mm, OWLDataFactory df, PrefixManager pm) {
         negativeExamples.add(df.getOWLNamedIndividual("T" + mm.get(0).transaction, pm));
-    }
-
-    public static String getDataTypeKeyValueOLD(String classInput) {
-
-        String dataType = "";
-        String key = "";
-        String value = "";
-
-        if (classInput.contains("documentation_url")){
-            dataType = classInput.split("_")[0];
-            key = "documentation_url";
-            value = classInput.split("_", 4)[3];
-        } else if (StringUtils.countMatches(classInput, "_") > 1) {
-            dataType = classInput.split("_", 3)[0];
-            key = classInput.split("_", 3)[1];
-            value = classInput.split("_", 3)[2];
-        } else if (StringUtils.countMatches(classInput, "_") == 1) {
-            dataType = classInput.split("_", 2)[0];
-            key = "";
-            value = classInput.split("_", 2)[1];
-        }
-
-        if (classInput.contains("message.bot_id")){
-            dataType = classInput.split("_", 2)[0];
-            key = "message.bot_id";
-            value = classInput.split("_", 4)[3];
-        }
-
-        return dataType + "~" + key + "~" + value;
     }
 
     public static String getRefinedValue (String value) {

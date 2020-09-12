@@ -5,14 +5,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,6 +21,7 @@ import java.util.*;
  *
  * @author thilini bhagya
  */
+
 public class RawXMLToCSVConverterForTwitter {
     static org.apache.log4j.Logger LOGGER = Logging.getLogger(RawXMLToCSVConverterForTwitter.class);
     //read request.xml data
@@ -272,19 +269,5 @@ public class RawXMLToCSVConverterForTwitter {
         writer.flush();
         writer.close();
 
-    }
-
-    //modify query string as a map
-    public static Map<String, String> getQueryTokenMap(String a) throws URISyntaxException, UnsupportedEncodingException {
-        Map<String, String> maps = new HashMap<String, String>();
-        //decode query string
-        String decoded = URLDecoder.decode(a, "UTF-8");
-        StringTokenizer st = new StringTokenizer(decoded, ",=&");
-        while (st.hasMoreElements()) {
-            String key = st.nextToken();
-            String value = st.nextToken();
-            maps.put(key, value);
-        }
-        return maps;
     }
 }

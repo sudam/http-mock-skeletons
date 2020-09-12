@@ -498,13 +498,13 @@ public class OWLFileGeneratorForSlack {
         if (featureType == FeatureType.RequestHeader) {
             String RequestHeaderValue = "";
             if (HeaderKey.equals("HasAuthorisationToken")) {
-                RequestHeaderValue = String.valueOf(HasAuthorizationToken(mm));
+                RequestHeaderValue = String.valueOf(hasAuthorizationToken(mm));
             } else if (HeaderKey.equals("HasRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasRequestPayload());
+                RequestHeaderValue = String.valueOf(hasRequestPayload());
             } else if (HeaderKey.equals("HasValidRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasValidRequestPayload());
+                RequestHeaderValue = String.valueOf(hasValidRequestPayload());
             } else {
-                RequestHeaderValue = String.valueOf(Utilities.RequestHeaderSlack(mm, HeaderKey));
+                RequestHeaderValue = String.valueOf(Utilities.requestHeaderSlack(mm, HeaderKey));
             }
 
             if (RequestHeaderValue.contains("\'")) {
@@ -519,7 +519,7 @@ public class OWLFileGeneratorForSlack {
 
         // RESPONSE HEADER
         else if (featureType == FeatureType.ResponseHeader) {
-            String responseHeaderValue = String.valueOf(Utilities.ResponseHeaderSlack(mm, HeaderKey));
+            String responseHeaderValue = String.valueOf(Utilities.responseHeaderSlack(mm, HeaderKey));
             if (responseHeaderValue.contains("\'")) {
                 responseHeaderValue = responseHeaderValue.replaceAll("\'", "");
             }
@@ -537,7 +537,7 @@ public class OWLFileGeneratorForSlack {
 
         // RESPONSE BODY
         else if (featureType == FeatureType.ResponseBody && !HeaderKey.contains(".")) {
-            String HeaderValueToCompare = String.valueOf(Utilities.ResponseBodySlack(mm, HeaderKey, null, null));
+            String HeaderValueToCompare = String.valueOf(Utilities.responseBodySlack(mm, HeaderKey, null, null));
 
             if (HeaderValueToCompare.contains("_")) {
                 HeaderValueToCompare = HeaderValueToCompare.replaceAll("_", "");
@@ -548,7 +548,7 @@ public class OWLFileGeneratorForSlack {
             String message = HeaderKey.split("\\.")[0];
             String bot_id = HeaderKey.split("\\.")[1];
 
-            if (String.valueOf(Utilities.ResponseBodySlack(mm, message, bot_id, null)).equals(HeaderValue)) {
+            if (String.valueOf(Utilities.responseBodySlack(mm, message, bot_id, null)).equals(HeaderValue)) {
                 return true;
             }
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(HeaderKey, ".") == 2) {
@@ -556,7 +556,7 @@ public class OWLFileGeneratorForSlack {
             String edited = HeaderKey.split("\\.")[1];
             String user = HeaderKey.split("\\.")[2];
 
-            if (String.valueOf(Utilities.ResponseBodySlack(mm, message, edited, user)).equals(HeaderValue)) {
+            if (String.valueOf(Utilities.responseBodySlack(mm, message, edited, user)).equals(HeaderValue)) {
                 return true;
             }
         }
@@ -564,7 +564,7 @@ public class OWLFileGeneratorForSlack {
         // REQUEST URI
         else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriSchema")) {
             try {
-                if (URITokeniser.GetURLScheme(mm.get(0).getURL()).equals(HeaderValue)) {
+                if (URITokeniser.getURLScheme(mm.get(0).getURL()).equals(HeaderValue)) {
                     return true;
                 }
             } catch (URISyntaxException e) {
@@ -572,7 +572,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriHost")) {
             try {
-                if (URITokeniser.GetUriHost(mm.get(0).getURL()).equals(HeaderValue)) {
+                if (URITokeniser.getUriHost(mm.get(0).getURL()).equals(HeaderValue)) {
                     return true;
                 }
             } catch (URISyntaxException e) {
@@ -580,7 +580,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriPathToken1")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -592,7 +592,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriPathToken2")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -604,7 +604,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriPathToken3")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -616,7 +616,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriPathToken4")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -628,7 +628,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriPathToken5")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -640,7 +640,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriPathToken6")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -655,7 +655,7 @@ public class OWLFileGeneratorForSlack {
                 if (HeaderValue.contains("\'")) {
                     HeaderValue = HeaderValue.replaceAll("\'", "");
                 }
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -669,7 +669,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriQueryToken2")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -686,7 +686,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriFragmentToken1")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -700,7 +700,7 @@ public class OWLFileGeneratorForSlack {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.contains("RequestUriFragmentToken2")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -726,7 +726,7 @@ public class OWLFileGeneratorForSlack {
 
         // REQUEST AUTH TOKEN
         else if (featureType == FeatureType.RequestAuthToken) {
-            return String.valueOf(Utilities.HasAuthorizationToken(mm)).toLowerCase().equals(HeaderValue);
+            return String.valueOf(Utilities.hasAuthorizationToken(mm)).toLowerCase().equals(HeaderValue);
         }
 
         return false;
@@ -750,6 +750,9 @@ public class OWLFileGeneratorForSlack {
     }
 
     public static String refineValueSlack(String value) {
+        // escape special characters and notations from each OWL class name and
+        // use the original class name as OWL class label when creating the OWL class
+
         if (value.contains("application/x-www")) {
             value = "x-www";
         }

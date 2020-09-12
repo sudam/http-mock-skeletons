@@ -17,6 +17,7 @@ import java.util.Random;
  *
  * @author thilini bhagya
  */
+
 public class RIPPERModelTester {
     static Logger LOGGER = Logging.getLogger(C45ModelTester.class);
 

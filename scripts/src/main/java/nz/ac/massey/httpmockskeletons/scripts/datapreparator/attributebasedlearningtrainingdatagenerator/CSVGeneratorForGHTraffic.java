@@ -127,35 +127,35 @@ public class CSVGeneratorForGHTraffic {
                 for (String value : RequestHeaderKeyList) {
                     String key = value.replace("RequestHeader_", "");
                     if (key.contains("HasAuthorisationToken")) {
-                        requestHeaderValueList.add(String.valueOf(Utilities.HasAuthorizationTokenGHTraffic(mm)));
+                        requestHeaderValueList.add(String.valueOf(Utilities.hasAuthorizationTokenGHTraffic(mm)));
                     } else {
-                        requestHeaderValueList.add(String.valueOf(Utilities.RequestHeadersGHTraffic(mm, key)));
+                        requestHeaderValueList.add(String.valueOf(Utilities.requestHeadersGHTraffic(mm, key)));
                     }
                 }
 
                 for (String value : ResponseHeaderKeyList) {
                     String key = value.replace("ResponseHeader_", "");
-                    responseHeaderValueList.add(String.valueOf(Utilities.ResponseHeadersGHTraffic(mm, key)));
+                    responseHeaderValueList.add(String.valueOf(Utilities.responseHeadersGHTraffic(mm, key)));
                 }
 
                 for (String value : ResponseBodyKeyList) {
                     String key = value.replace("ResponseBody_", "");
                     if (StringUtils.countMatches(key, ".") == 0) {
-                        responseBodyValueList.add(String.valueOf(Utilities.ResponseBodyGHTraffic(mm, key, null, null)));
+                        responseBodyValueList.add(String.valueOf(Utilities.responseBodyGHTraffic(mm, key, null, null)));
                     } else if (StringUtils.countMatches(key, ".") == 1) {
-                        responseBodyValueList.add(String.valueOf(Utilities.ResponseBodyGHTraffic(mm, key.split("\\.")[0], key.split("\\.")[1], null)));
+                        responseBodyValueList.add(String.valueOf(Utilities.responseBodyGHTraffic(mm, key.split("\\.")[0], key.split("\\.")[1], null)));
                     } else if (StringUtils.countMatches(key, ".") == 2) {
-                        responseBodyValueList.add(String.valueOf(Utilities.ResponseBodyGHTraffic(mm, key.split("\\.")[0], key.split("\\.")[1], key.split("\\.")[2])));
+                        responseBodyValueList.add(String.valueOf(Utilities.responseBodyGHTraffic(mm, key.split("\\.")[0], key.split("\\.")[1], key.split("\\.")[2])));
                     }
                 }
 
                 for (String value : RequestBodyKeyList) {
                     String key = value.replace("RequestBody_", "");
-                    requestBodyValueList.add(String.valueOf(Utilities.RequestBodyGHTraffic(mm, key)));
+                    requestBodyValueList.add(String.valueOf(Utilities.requestBodyGHTraffic(mm, key)));
                 }
 
                 for (String statusCode : statusTempCodesList) {
-                    statusCodeValueList.add(String.valueOf(Utilities.HasStatusCodeOccurredBefore(codeList, statusCode)));
+                    statusCodeValueList.add(String.valueOf(Utilities.hasStatusCodeOccurredBefore(codeList, statusCode)));
                 }
 
                 String[] genericValueArr;
@@ -164,39 +164,39 @@ public class CSVGeneratorForGHTraffic {
                         String.valueOf(mm.get(0).getMethod()),
                         String.valueOf(mm.get(0).getCode()),
 
-                        String.valueOf(URITokeniser.GetURLScheme(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLScheme(mm.get(0).getURL())),
-                        String.valueOf(URITokeniser.GetUriHost(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetUriHost(mm.get(0).getURL())),
+                        String.valueOf(URITokeniser.getURLScheme(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLScheme(mm.get(0).getURL())),
+                        String.valueOf(URITokeniser.getUriHost(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.getUriHost(mm.get(0).getURL())),
 
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")),
 
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")),
 
-                        String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1")),
-                        String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2")),
+                        String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1")),
+                        String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2")),
 
-                        String.valueOf(Utilities.HasRequestPayloadGHTraffic(mm)),
-                        String.valueOf(Utilities.HasValidRequestPayloadGHTraffic(mm))
+                        String.valueOf(Utilities.hasRequestPayloadGHTraffic(mm)),
+                        String.valueOf(Utilities.hasValidRequestPayloadGHTraffic(mm))
 
                 };
 
                 transactionHistoryValueArr = new String[]{
-                        String.valueOf(Utilities.HasImmediatePreviousTransaction(codeList)),
+                        String.valueOf(Utilities.hasImmediatePreviousTransaction(codeList)),
                         String.valueOf(hasImmediatelyPreviousTransactionSucceeded(codeList)),
-                        String.valueOf(Utilities.ImmediatelyPreviousStatusCode(codeList)),
-                        String.valueOf(Utilities.ImmediatelyPreviousMethod(methodList)),
+                        String.valueOf(Utilities.immediatelyPreviousStatusCode(codeList)),
+                        String.valueOf(Utilities.immediatelyPreviousMethod(methodList)),
 
-                        String.valueOf(Utilities.HasURLInImmediatelyPreviousTransactionContainsATokenToCreateGHTraffic(codeList, actionList)),
-                        String.valueOf(Utilities.HasURLInImmediatelyPreviousTransactionContainsATokenToReadGHTraffic(codeList, actionList)),
-                        String.valueOf(Utilities.HasURLInImmediatelyPreviousTransactionContainsATokenToUpdateGHTraffic(codeList, actionList)),
-                        String.valueOf(Utilities.HasURLInImmediatelyPreviousTransactionContainsATokenToDeleteGHTraffic(codeList, actionList)),
+                        String.valueOf(Utilities.hasURLInImmediatelyPreviousTransactionContainsATokenToCreateGHTraffic(codeList, actionList)),
+                        String.valueOf(Utilities.hasURLInImmediatelyPreviousTransactionContainsATokenToReadGHTraffic(codeList, actionList)),
+                        String.valueOf(Utilities.hasURLInImmediatelyPreviousTransactionContainsATokenToUpdateGHTraffic(codeList, actionList)),
+                        String.valueOf(Utilities.hasURLInImmediatelyPreviousTransactionContainsATokenToDeleteGHTraffic(codeList, actionList)),
 
                         String.valueOf(Utilities.hasSuccessfulCreateOperationOccurredBeforeGHTraffic(methodStatusCodeList)),
                         String.valueOf(Utilities.hasSuccessfulReadOperationOccurredBeforeGHTraffic(methodStatusCodeList)),
@@ -254,7 +254,7 @@ public class CSVGeneratorForGHTraffic {
         for (Map.Entry<String, TreeMap<String, List<HTTPTransaction>>> m : HTTPTransaction.transactions.entrySet()) {
             for (List<HTTPTransaction> mm : m.getValue().values()) {
                 String string_without_version = mm.get(0).getRequestBody();
-                if (string_without_version.matches("null") || IsNotToBeAddedToRequestBodyList(string_without_version)) {
+                if (string_without_version.matches("null") || isNotToBeAddedToRequestBodyList(string_without_version)) {
                 } else {
                     BodyTokeniser.extractKeys("RequestBody", mm.get(0).getRequestBody(), RequestBodyKeySet);
                 }
@@ -262,7 +262,7 @@ public class CSVGeneratorForGHTraffic {
         }
     }
 
-    private static boolean IsNotToBeAddedToRequestBodyList(String key) {
+    private static boolean isNotToBeAddedToRequestBodyList(String key) {
         if (key.contains("title")) {
             return true;
         }

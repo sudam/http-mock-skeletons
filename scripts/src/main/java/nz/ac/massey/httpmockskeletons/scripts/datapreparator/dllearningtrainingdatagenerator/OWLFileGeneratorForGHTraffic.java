@@ -596,13 +596,13 @@ public class OWLFileGeneratorForGHTraffic {
             String RequestHeaderValue = "";
 
             if (featureKey.equals("HasAuthorisationToken")) {
-                RequestHeaderValue = String.valueOf(HasAuthorizationToken(mm));
+                RequestHeaderValue = String.valueOf(hasAuthorizationToken(mm));
             } else if (featureKey.equals("HasRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasRequestPayloadGHTraffic(mm));
+                RequestHeaderValue = String.valueOf(hasRequestPayloadGHTraffic(mm));
             } else if (featureKey.equals("HasValidRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasValidRequestPayloadGHTraffic(mm));
+                RequestHeaderValue = String.valueOf(hasValidRequestPayloadGHTraffic(mm));
             } else {
-                RequestHeaderValue = String.valueOf(Utilities.RequestHeadersGHTraffic(mm, featureKey));
+                RequestHeaderValue = String.valueOf(Utilities.requestHeadersGHTraffic(mm, featureKey));
             }
 
             if (RequestHeaderValue.contains("\'")) {
@@ -615,7 +615,7 @@ public class OWLFileGeneratorForGHTraffic {
 
         // REQUEST BODY
         else if (featureType == FeatureType.RequestBody) {
-            String HeaderValueToAdd = String.valueOf(Utilities.RequestBodyGHTraffic(mm, featureKey));
+            String HeaderValueToAdd = String.valueOf(Utilities.requestBodyGHTraffic(mm, featureKey));
 
             return HeaderValueToAdd.toUpperCase().equals(featureValue.toUpperCase());
 
@@ -623,7 +623,7 @@ public class OWLFileGeneratorForGHTraffic {
 
         // RESPONSE HEADER
         else if (featureType == FeatureType.ResponseHeader) {
-            String responseHeaderValue = String.valueOf(Utilities.ResponseHeadersGHTraffic(mm, featureKey));
+            String responseHeaderValue = String.valueOf(Utilities.responseHeadersGHTraffic(mm, featureKey));
             if (responseHeaderValue.contains("\'")) {
                 responseHeaderValue = responseHeaderValue.replaceAll("\'", "");
             }
@@ -635,19 +635,19 @@ public class OWLFileGeneratorForGHTraffic {
         // RESPONSE BODY
         else if (featureType == FeatureType.ResponseBody && featureKey.contains("assignees")) {
             String HeaderKeyInside = featureKey.split("\\.")[1];
-            return String.valueOf(Utilities.ResponseBodyGHTraffic(mm, "assignees", HeaderKeyInside, null)).toUpperCase().equals(featureValue.toUpperCase());
+            return String.valueOf(Utilities.responseBodyGHTraffic(mm, "assignees", HeaderKeyInside, null)).toUpperCase().equals(featureValue.toUpperCase());
         } else if (featureType == FeatureType.ResponseBody && !featureKey.contains(".")) {
-            return String.valueOf(Utilities.ResponseBodyGHTraffic(mm, featureKey, null, null)).toUpperCase().equals(featureValue.toUpperCase());
+            return String.valueOf(Utilities.responseBodyGHTraffic(mm, featureKey, null, null)).toUpperCase().equals(featureValue.toUpperCase());
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(featureKey, ".") == 1) {
             String message = featureKey.split("\\.")[0];
             String bot_id = featureKey.split("\\.")[1];
-            return String.valueOf(Utilities.ResponseBodyGHTraffic(mm, message, bot_id, null)).toUpperCase().equals(featureValue.toUpperCase());
+            return String.valueOf(Utilities.responseBodyGHTraffic(mm, message, bot_id, null)).toUpperCase().equals(featureValue.toUpperCase());
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(featureKey, ".") == 2) {
             String message = featureKey.split("\\.")[0];
             String edited = featureKey.split("\\.")[1];
             String user = featureKey.split("\\.")[2];
 
-            return String.valueOf(Utilities.ResponseBodyGHTraffic(mm, message, edited, user)).toUpperCase().equals(featureValue.toUpperCase());
+            return String.valueOf(Utilities.responseBodyGHTraffic(mm, message, edited, user)).toUpperCase().equals(featureValue.toUpperCase());
         }
 
         // RESPONSE STATUS CODE
@@ -658,7 +658,7 @@ public class OWLFileGeneratorForGHTraffic {
         // REQUEST URI
         else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturischema")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLScheme(mm.get(0).getURL());
+                String URLCoreTokenMap = URITokeniser.getURLScheme(mm.get(0).getURL());
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -670,7 +670,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturihost")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetUriHost(mm.get(0).getURL());
+                String URLCoreTokenMap = URITokeniser.getUriHost(mm.get(0).getURL());
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -682,7 +682,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturipathtoken1")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -694,7 +694,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturipathtoken2")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -706,7 +706,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturipathtoken3")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -718,7 +718,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturipathtoken4")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -730,7 +730,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturipathtoken5")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -742,7 +742,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturipathtoken6")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -754,7 +754,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturiquerytoken1")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -768,7 +768,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturiquerytoken2")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -782,7 +782,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturiquerytoken3")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -796,7 +796,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturiquerytoken4")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -810,7 +810,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturifragmenttoken1")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -824,7 +824,7 @@ public class OWLFileGeneratorForGHTraffic {
             }
         } else if (featureType == FeatureType.RequestURI && featureKey.toLowerCase().contains("requesturifragmenttoken2")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -862,6 +862,9 @@ public class OWLFileGeneratorForGHTraffic {
     }
 
     public static String refineValueGHTraffic(FeatureType featureType, String value) {
+        // escape special characters and notations from each OWL class name and
+        // use the original class name as OWL class label when creating the OWL class
+
         if (value.contains("application/json; charset=utf-8") && featureType == FeatureType.RequestHeader) {
             value = "json";
         }

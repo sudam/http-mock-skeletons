@@ -8,14 +8,15 @@ import java.io.File;
 import java.util.*;
 
 /**
- * this class forms header labels
+ * this class creates a static JSON array of label names for each dataset types
+ * that reflect the OWL class labels with actual OWL class name
  *
  * @author thilini bhagya
  */
 
-public class HeaderLabel {
+public class OWLClassLabelsJSONArrays {
 
-    public static JSONObject getSlackArray(){
+    public static JSONObject getOwlClassLabelsJsonArraySlack(){
         JSONObject item = new JSONObject();
         JSONArray array = new JSONArray();
 
@@ -45,7 +46,7 @@ public class HeaderLabel {
         return item;
     }
 
-    public static JSONObject getGoogleArray(){
+    public static JSONObject getOwlClassLabelsJsonArrayGoogleTasks(){
         JSONObject item = new JSONObject();
         JSONArray array = new JSONArray();
 
@@ -78,7 +79,7 @@ public class HeaderLabel {
         return item;
     }
 
-    public static JSONObject getTwitterArray(){
+    public static JSONObject getOwlClassLabelsJsonArrayTwitter(){
         JSONObject item = new JSONObject();
         JSONArray array = new JSONArray();
 
@@ -135,7 +136,7 @@ public class HeaderLabel {
         return item;
     }
 
-    public static JSONObject getGHTrafficArray(){
+    public static JSONObject getOwlClassLabelsJsonArrayGHTraffic(){
         JSONObject item = new JSONObject();
         JSONArray array = new JSONArray();
 
@@ -228,40 +229,4 @@ public class HeaderLabel {
         return item;
     }
 
-    public static List<OWLClass> getOWLClasses(String owlFileName, String responseType) throws OWLOntologyCreationException {
-
-        OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-        File file = new File("src/resources/" + owlFileName + ".owl");
-        OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
-
-        List<OWLClass> owlClassResponseHeaderList = new ArrayList<>();
-        List<OWLClass> owlClassResponseStatusCodeList = new ArrayList<>();
-        List<OWLClass> owlClassResponseBodyList = new ArrayList<>();
-
-        Set<OWLClass> owlClassSet = ontology.getClassesInSignature();
-
-        for(OWLClass owlClass : owlClassSet){
-            String response = owlClass.toString().split("#")[1].split("_")[0];
-            if(response.equals("ResponseHeader")){
-                owlClassResponseHeaderList.add(owlClass);
-            } else if (response.equals("ResponseStatusCode")){
-                owlClassResponseStatusCodeList.add(owlClass);
-            } else if (response.equals("ResponseBody")){
-                owlClassResponseBodyList.add(owlClass);
-            }
-        }
-
-        switch (responseType){
-            case "ResponseHeader" :
-                return owlClassResponseHeaderList;
-            case "ResponseStatusCode" :
-                return owlClassResponseStatusCodeList;
-            case "ResponseBody" :
-                return owlClassResponseBodyList;
-            default:{
-            }
-        }
-
-        return null;
-    }
 }

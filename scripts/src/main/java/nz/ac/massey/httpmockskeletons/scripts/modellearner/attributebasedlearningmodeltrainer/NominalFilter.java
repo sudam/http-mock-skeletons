@@ -10,6 +10,7 @@ import weka.filters.unsupervised.attribute.StringToNominal;
  *
  * @author thilini bhagya
  */
+
 public class NominalFilter {
 
     public static Instances numericToNominal(Instances fileName, int index) throws Exception {

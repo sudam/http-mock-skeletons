@@ -14,7 +14,9 @@ import java.io.File;
  */
 
 public class CSVToARFFConverter {
+
     static org.apache.log4j.Logger LOGGER = Logging.getLogger(CSVToARFFConverter.class);
+
     public static void convertCSVDataFileToARFFFormat(String fileName) throws Exception {
         LOGGER.info("Converting extracted data into ARFF format");
         // load CSV file

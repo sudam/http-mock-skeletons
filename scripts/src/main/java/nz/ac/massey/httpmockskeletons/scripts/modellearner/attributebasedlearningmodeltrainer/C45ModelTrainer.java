@@ -1,17 +1,13 @@
 package nz.ac.massey.httpmockskeletons.scripts.modellearner.attributebasedlearningmodeltrainer;
 
 import nz.ac.massey.httpmockskeletons.scripts.Logging;
-import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.gui.treevisualizer.*;
-
 import java.awt.*;
-import java.util.Random;
-
 import org.apache.log4j.*;
 
 /**
@@ -19,6 +15,7 @@ import org.apache.log4j.*;
  *
  * @author thilini bhagya
  */
+
 public class C45ModelTrainer {
     static Logger LOGGER = Logging.getLogger(C45ModelTrainer.class);
 
@@ -65,7 +62,6 @@ public class C45ModelTrainer {
             });
             jf.setVisible(true);
             tv.fitToScreen();
-
         }
 
         // Handle exception if selected target is unary

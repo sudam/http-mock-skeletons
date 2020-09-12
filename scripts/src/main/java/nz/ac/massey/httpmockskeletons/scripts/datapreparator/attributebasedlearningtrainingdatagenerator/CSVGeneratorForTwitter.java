@@ -118,23 +118,23 @@ public class CSVGeneratorForTwitter {
                 for (String value : requestHeaderKeyList) {
                     String key = value.replace("RequestHeader_", "");
                     if (key.contains("HasAuthorisationToken")) {
-                        requestHeaderValueList.add(String.valueOf(HasAuthorizationToken(mm)));
+                        requestHeaderValueList.add(String.valueOf(hasAuthorizationToken(mm)));
                     } else {
-                        requestHeaderValueList.add(String.valueOf(RequestHeadersTwitter(mm, key)));
+                        requestHeaderValueList.add(String.valueOf(requestHeadersTwitter(mm, key)));
                     }
                 }
 
                 for (String value : responseHeaderKeyList) {
                     String key = value.replace("ResponseHeader_", "");
-                    responseHeaderValueList.add(String.valueOf(ResponseHeadersTwitter(mm, key)));
+                    responseHeaderValueList.add(String.valueOf(responseHeadersTwitter(mm, key)));
                 }
 
                 for (String value : responseBodyKeyList) {
                     String key = value.replace("ResponseBody_", "");
                     if (StringUtils.countMatches(key, ".") == 0) {
-                        responseBodyValueList.add(String.valueOf(ResponseBodyTwitter(mm, key)));
+                        responseBodyValueList.add(String.valueOf(responseBodyTwitter(mm, key)));
                     } else if (StringUtils.countMatches(key, ".") == 1) {
-                        responseBodyValueList.add(String.valueOf(ResponseBodyInsideTwitter(mm, key.split("\\.")[0], key.split("\\.")[1])));
+                        responseBodyValueList.add(String.valueOf(responseBodyInsideTwitter(mm, key.split("\\.")[0], key.split("\\.")[1])));
                     }
                 }
 
@@ -148,37 +148,37 @@ public class CSVGeneratorForTwitter {
                 genericValueArr = new String[]{
                         String.valueOf(mm.get(0).getMethod()),
                         String.valueOf(mm.get(0).getCode()),
-                        String.valueOf(URITokeniser.GetURLScheme(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLScheme(mm.get(0).getURL())),
-                        String.valueOf(URITokeniser.GetUriHost(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetUriHost(mm.get(0).getURL())),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")),
-                        String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")),
-                        String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")),
-                        String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1")),
-                        String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2")),
-                        String.valueOf(HasRequestPayload()),
-                        String.valueOf(HasValidRequestPayload())
+                        String.valueOf(URITokeniser.getURLScheme(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLScheme(mm.get(0).getURL())),
+                        String.valueOf(URITokeniser.getUriHost(mm.get(0).getURL())) == "null" ? "not-exist" : String.valueOf(URITokeniser.getUriHost(mm.get(0).getURL())),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5")),
+                        String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3")),
+                        String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4")),
+                        String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1")),
+                        String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2")) == "null" ? "not-exist" : String.valueOf(URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2")),
+                        String.valueOf(hasRequestPayload()),
+                        String.valueOf(hasValidRequestPayload())
                 };
 
                 transactionHistoryValueArr = new String[]{
-                        String.valueOf(HasImmediatePreviousTransaction(codeList)),
+                        String.valueOf(hasImmediatePreviousTransaction(codeList)),
                         String.valueOf(hasImmediatelyPreviousTransactionSucceeded(codeList)),
-                        String.valueOf(ImmediatelyPreviousStatusCode(codeList)),
-                        String.valueOf(ImmediatelyPreviousMethod(methodList)),
-                        String.valueOf(HasURLInImmediatelyPreviousTransactionContainsATokenToCreateTwitter(codeList, actionList)),
-                        String.valueOf(HasURLInImmediatelyPreviousTransactionContainsATokenToReadTwitter(codeList, actionList)),
-                        String.valueOf(HasURLInImmediatelyPreviousTransactionContainsATokenToUpdateTwitter(codeList, actionList)),
-                        String.valueOf(HasURLInImmediatelyPreviousTransactionContainsATokenToDeleteTwitter(codeList, actionList)),
-                        String.valueOf(HasSuccessfulCreateOperationOccurredBeforeTwitter(actionList, actionCodeList)),
-                        String.valueOf(HasSuccessfulReadOperationOccurredBeforeTwitter(actionList, actionCodeList)),
-                        String.valueOf(HasSuccessfulUpdateOperationOccurredBeforeTwitter(actionList, actionCodeList)),
-                        String.valueOf(HasSuccessfulDeleteOperationOccurredBeforeTwitter(actionList, actionCodeList))
+                        String.valueOf(immediatelyPreviousStatusCode(codeList)),
+                        String.valueOf(immediatelyPreviousMethod(methodList)),
+                        String.valueOf(hasURLInImmediatelyPreviousTransactionContainsATokenToCreateTwitter(codeList, actionList)),
+                        String.valueOf(hasURLInImmediatelyPreviousTransactionContainsATokenToReadTwitter(codeList, actionList)),
+                        String.valueOf(hasURLInImmediatelyPreviousTransactionContainsATokenToUpdateTwitter(codeList, actionList)),
+                        String.valueOf(hasURLInImmediatelyPreviousTransactionContainsATokenToDeleteTwitter(codeList, actionList)),
+                        String.valueOf(hasSuccessfulCreateOperationOccurredBeforeTwitter(actionList, actionCodeList)),
+                        String.valueOf(hasSuccessfulReadOperationOccurredBeforeTwitter(actionList, actionCodeList)),
+                        String.valueOf(hasSuccessfulUpdateOperationOccurredBeforeTwitter(actionList, actionCodeList)),
+                        String.valueOf(hasSuccessfulDeleteOperationOccurredBeforeTwitter(actionList, actionCodeList))
                 };
 
                 List<String> genericValueList = Arrays.asList(genericValueArr);

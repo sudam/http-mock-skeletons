@@ -6,6 +6,13 @@ import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -19,24 +26,24 @@ public class Utilities {
 
     // COMMON
 
-    public static boolean HasAuthorizationToken(List<HTTPTransaction> mm) {
+    public static boolean hasAuthorizationToken(List<HTTPTransaction> mm) {
 
         return String.valueOf(mm.get(0).getCode()).matches("401") ? false : true;
     }
 
-    public static boolean HasRequestPayload() {
+    public static boolean hasRequestPayload() {
         return false;
     }
 
-    public static boolean HasValidRequestPayload() {
+    public static boolean hasValidRequestPayload() {
         return false;
     }
 
-    public static boolean HasStatusCodeOccurredBefore(List<String> codeList, String statusCode) {
+    public static boolean hasStatusCodeOccurredBefore(List<String> codeList, String statusCode) {
         return codeList.subList(0, codeList.size() - 1).contains((statusCode)) ? true : false;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToCreate(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToCreate(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -52,7 +59,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToRead(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToRead(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -68,7 +75,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToUpdate(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToUpdate(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -84,7 +91,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToDelete(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToDelete(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -100,7 +107,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasSuccessfulReadOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulReadOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -118,7 +125,7 @@ public class Utilities {
         return methodResults.contains("GET-200");
     }
 
-    public static boolean HasSuccessfulUpdateOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulUpdateOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -134,7 +141,7 @@ public class Utilities {
         return methodResults.contains("PATCH-200");
     }
 
-    public static boolean HasSuccessfulDeleteOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulDeleteOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -150,7 +157,7 @@ public class Utilities {
         return methodResults.contains("DELETE-204");
     }
 
-    public static boolean HasSuccessfulCreateOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulCreateOperationOccurredBefore(List<String> action, List<String> methodStatusCodeList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -168,11 +175,11 @@ public class Utilities {
         return methodResults.contains("POST-200");
     }
 
-    public static boolean HasImmediatePreviousTransaction(List<String> n) {
+    public static boolean hasImmediatePreviousTransaction(List<String> n) {
         return n.subList(0, n.size() - 1).size() != 0 ? true : false;
     }
 
-    public static String ImmediatelyPreviousStatusCode(List<String> code) {
+    public static String immediatelyPreviousStatusCode(List<String> code) {
         String immediatelyPreviousStatusCode = "not-exist";
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -196,7 +203,7 @@ public class Utilities {
         return immediatelyPreviousStatusCode;
     }
 
-    public static String ImmediatelyPreviousMethod(List<String> n) {
+    public static String immediatelyPreviousMethod(List<String> n) {
         String method = "not-exist";
 
         if (n.subList(0, n.size() - 1).size() != 0) {
@@ -210,7 +217,7 @@ public class Utilities {
 
     // GOOGLE
 
-    public static String RequestHeaderGoogle(List<HTTPTransaction> mm, String value) {
+    public static String requestHeaderGoogle(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         //convert to json style
         String stuff_with_curlyB = "{" + mm.get(0).getRequestHeaders() + "}";
@@ -228,7 +235,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseHeaderGoogle(List<HTTPTransaction> mm, String value) {
+    public static String responseHeaderGoogle(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         //convert to json style
         int index = mm.get(0).getResponseHeaders().indexOf("\t");
@@ -253,7 +260,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseBodyGoogle(List<HTTPTransaction> mm, String value, String subvalue, String subsubvalue) {
+    public static String responseBodyGoogle(List<HTTPTransaction> mm, String value, String subvalue, String subsubvalue) {
         String body = "not-exist";
         String string_without_version = mm.get(0).getResponseBody().replaceAll("\"\"", "\"");
 
@@ -283,7 +290,7 @@ public class Utilities {
         return body;
     }
 
-    public static boolean HasRequestPayloadGoogle(String method, String statusCode) {
+    public static boolean hasRequestPayloadGoogle(String method, String statusCode) {
         if ((method.equals("POST") && statusCode.equals("200")) ||
                 (method.equals("PATCH") && statusCode.equals("200")) ||
                 (method.equals("PATCH") && statusCode.equals("404")) ||
@@ -296,7 +303,7 @@ public class Utilities {
         return false;
     }
 
-    public static boolean HasValidRequestPayloadGoogle(String method, String statusCode) {
+    public static boolean hasValidRequestPayloadGoogle(String method, String statusCode) {
         if ((method.equals("POST") && statusCode.equals("200")) ||
                 (method.equals("PATCH") && statusCode.equals("200")) ||
                 (method.equals("PATCH") && statusCode.equals("404")) ||
@@ -311,7 +318,7 @@ public class Utilities {
 
     // SLACK
 
-    public static String RequestHeaderSlack(List<HTTPTransaction> mm, String value) {
+    public static String requestHeaderSlack(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         //convert to json style
         String stuff_with_curlyB = "{" + mm.get(0).getRequestHeaders() + "}";
@@ -331,7 +338,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseHeaderSlack(List<HTTPTransaction> mm, String value) {
+    public static String responseHeaderSlack(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         //convert to json style
         int index = mm.get(0).getResponseHeaders().indexOf("\t");
@@ -355,7 +362,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseBodySlack(List<HTTPTransaction> mm, String value, String subvalue, String subsubvalue) {
+    public static String responseBodySlack(List<HTTPTransaction> mm, String value, String subvalue, String subsubvalue) {
         String body = "not-exist";
         JSONObject jsonObject = new JSONObject(mm.get(0).getResponseBody());
 
@@ -383,7 +390,7 @@ public class Utilities {
         return body;
     }
 
-    public static boolean HasSuccessfulCreateOperationOccurredBeforeSlack(List<String> urlList, List<String> bodyList) throws URISyntaxException {
+    public static boolean hasSuccessfulCreateOperationOccurredBeforeSlack(List<String> urlList, List<String> bodyList) throws URISyntaxException {
 
         List Urls = urlList.subList(0, urlList.size() - 1);
         List results = new LinkedList<String>();
@@ -405,7 +412,7 @@ public class Utilities {
         return results.contains(true);
     }
 
-    public static boolean HasSuccessfulDeleteOperationOccurredBeforeSlack(List<String> action, List<String> methodList) throws URISyntaxException {
+    public static boolean hasSuccessfulDeleteOperationOccurredBeforeSlack(List<String> action, List<String> methodList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -421,7 +428,7 @@ public class Utilities {
         return results.contains(true) || methodResults.contains("DELETE");
     }
 
-    public static boolean HasSuccessfulReadOperationOccurredBeforeSlack(List<String> action, List<String> methodList) throws URISyntaxException {
+    public static boolean hasSuccessfulReadOperationOccurredBeforeSlack(List<String> action, List<String> methodList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -437,7 +444,7 @@ public class Utilities {
         return results.contains(true) || methodResults.contains("GET");
     }
 
-    public static boolean HasSuccessfulUpdateOperationOccurredBeforeSlack(List<String> action, List<String> methodList) throws URISyntaxException {
+    public static boolean hasSuccessfulUpdateOperationOccurredBeforeSlack(List<String> action, List<String> methodList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -471,7 +478,7 @@ public class Utilities {
 
     // TWITTER
 
-    public static String RequestHeadersTwitter(List<HTTPTransaction> mm, String value) {
+    public static String requestHeadersTwitter(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         //convert to json style
         String stuff_with_curlyB = "{" + mm.get(0).getRequestHeaders() + "}";
@@ -497,7 +504,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseHeadersTwitter(List<HTTPTransaction> mm, String value) {
+    public static String responseHeadersTwitter(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         //convert to json style
 
@@ -526,7 +533,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseBodyTwitter(List<HTTPTransaction> mm, String value) {
+    public static String responseBodyTwitter(List<HTTPTransaction> mm, String value) {
         String body = "not-exist";
 
         JSONObject jsonObject = new JSONObject(mm.get(0).getResponseBody());
@@ -537,11 +544,11 @@ public class Utilities {
         return body;
     }
 
-    public static String ResponseBodyInsideTwitter(List<HTTPTransaction> mm, String value, String subvalue) {
+    public static String responseBodyInsideTwitter(List<HTTPTransaction> mm, String value, String subvalue) {
         String body = "not-exist";
 
         if (subvalue.equals("code") || subvalue.equals("message")) {
-            return ResponseBodyInsideArrayTwitter(mm, value, subvalue);
+            return responseBodyInsideArrayTwitter(mm, value, subvalue);
         } else {
             JSONObject jsonObject = new JSONObject(mm.get(0).getResponseBody());
             if (jsonObject.has(value)) {
@@ -555,7 +562,7 @@ public class Utilities {
         return body;
     }
 
-    public static String ResponseBodyInsideArrayTwitter(List<HTTPTransaction> mm, String value, String subvalue) {
+    public static String responseBodyInsideArrayTwitter(List<HTTPTransaction> mm, String value, String subvalue) {
         String body = "not-exist";
 
         JSONObject jsonObject = new JSONObject(mm.get(0).getResponseBody());
@@ -572,7 +579,7 @@ public class Utilities {
         return body;
     }
 
-    public static boolean HasSuccessfulCreateOperationOccurredBeforeTwitter(List<String> actionList, List<String> actionCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulCreateOperationOccurredBeforeTwitter(List<String> actionList, List<String> actionCodeList) throws URISyntaxException {
         List actionCodes = actionCodeList.subList(0, actionCodeList.size() - 1);
         List actionCodeResults = new LinkedList<String>();
         for (Object actionCode : actionCodes) {
@@ -585,7 +592,7 @@ public class Utilities {
         return actionCodeResults.contains(true);
     }
 
-    public static boolean HasSuccessfulDeleteOperationOccurredBeforeTwitter(List<String> action, List<String> actionCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulDeleteOperationOccurredBeforeTwitter(List<String> action, List<String> actionCodeList) throws URISyntaxException {
         List Urls = actionCodeList.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -598,7 +605,7 @@ public class Utilities {
         return results.contains(true);
     }
 
-    public static boolean HasSuccessfulReadOperationOccurredBeforeTwitter(List<String> action, List<String> actionCodeList) throws URISyntaxException {
+    public static boolean hasSuccessfulReadOperationOccurredBeforeTwitter(List<String> action, List<String> actionCodeList) throws URISyntaxException {
         List Urls = actionCodeList.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -611,7 +618,7 @@ public class Utilities {
         return results.contains(true);
     }
 
-    public static boolean HasSuccessfulUpdateOperationOccurredBeforeTwitter(List<String> action, List<String> codeList) throws URISyntaxException {
+    public static boolean hasSuccessfulUpdateOperationOccurredBeforeTwitter(List<String> action, List<String> codeList) throws URISyntaxException {
         List Urls = action.subList(0, action.size() - 1);
         List results = new LinkedList<String>();
         for (Object value : Urls) {
@@ -620,7 +627,7 @@ public class Utilities {
         return results.contains(true);
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToCreateTwitter(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToCreateTwitter(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -636,7 +643,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToReadTwitter(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToReadTwitter(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -652,7 +659,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToUpdateTwitter(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToUpdateTwitter(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -668,7 +675,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToDeleteTwitter(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToDeleteTwitter(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -686,7 +693,7 @@ public class Utilities {
 
     // GHTRAFFIC
 
-    public static String RequestHeadersGHTraffic(List<HTTPTransaction> mm, String value) {
+    public static String requestHeadersGHTraffic(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
         JSONObject jsonObject = new JSONObject(mm.get(0).getRequestHeaders());
         if (jsonObject.has(value)) {
@@ -700,7 +707,7 @@ public class Utilities {
         return header;
     }
 
-    public static String ResponseHeadersGHTraffic(List<HTTPTransaction> mm, String value) {
+    public static String responseHeadersGHTraffic(List<HTTPTransaction> mm, String value) {
         String header = "not-exist";
 
         JSONObject jsonObject = new JSONObject(mm.get(0).getResponseHeaders());
@@ -714,7 +721,7 @@ public class Utilities {
         return header;
     }
 
-    public static String RequestBodyGHTraffic(List<HTTPTransaction> mm, String value) {
+    public static String requestBodyGHTraffic(List<HTTPTransaction> mm, String value) {
         String body = "not-exist";
         String string_without_version = mm.get(0).getRequestBody();
         if (string_without_version.matches("null")) {
@@ -736,7 +743,7 @@ public class Utilities {
         return body;
     }
 
-    public static String ResponseBodyGHTraffic(List<HTTPTransaction> mm, String value, String subvalue, String subsubvalue) {
+    public static String responseBodyGHTraffic(List<HTTPTransaction> mm, String value, String subvalue, String subsubvalue) {
         String body = "not-exist";
 
         String string_without_version = mm.get(0).getResponseBody();
@@ -805,7 +812,7 @@ public class Utilities {
         return body;
     }
 
-    public static String HasRequestPayloadGHTraffic(List<HTTPTransaction> mm) {
+    public static String hasRequestPayloadGHTraffic(List<HTTPTransaction> mm) {
         String hasPayload;
         if (((String.valueOf(mm.get(0).getMethod()).matches("POST")) ||
                 (String.valueOf(mm.get(0).getMethod()).matches("PATCH"))) &&
@@ -827,9 +834,9 @@ public class Utilities {
         return hasPayload;
     }
 
-    public static String HasValidRequestPayloadGHTraffic(List<HTTPTransaction> mm) {
+    public static String hasValidRequestPayloadGHTraffic(List<HTTPTransaction> mm) {
         String hasValidJson = "false";
-        if (HasRequestPayloadGHTraffic(mm) == "true") {
+        if (hasRequestPayloadGHTraffic(mm) == "true") {
             if (((String.valueOf(mm.get(0).getMethod()).matches("POST"))
                     || (String.valueOf(mm.get(0).getMethod()).matches("PATCH"))) && String.valueOf(mm.get(0).getCode()).matches("400")) {
                 hasValidJson = "false";
@@ -840,7 +847,7 @@ public class Utilities {
                 hasValidJson = "true";
             }
 
-        } else if (HasRequestPayloadGHTraffic(mm) == "false") {
+        } else if (hasRequestPayloadGHTraffic(mm) == "false") {
             hasValidJson = "false";
         } else {
             hasValidJson = "false";
@@ -901,7 +908,7 @@ public class Utilities {
         return methodResults.contains("PATCH-200") || methodResults.contains("PUT-204");
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToCreateGHTraffic(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToCreateGHTraffic(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -915,7 +922,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToReadGHTraffic(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToReadGHTraffic(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -931,7 +938,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToUpdateGHTraffic(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToUpdateGHTraffic(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -947,7 +954,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasURLInImmediatelyPreviousTransactionContainsATokenToDeleteGHTraffic(List<String> code, List<String> action) {
+    public static boolean hasURLInImmediatelyPreviousTransactionContainsATokenToDeleteGHTraffic(List<String> code, List<String> action) {
         boolean hasImmediatePreviousTransaction = false;
 
         if (code.subList(0, code.size() - 1).size() != 0) {
@@ -963,7 +970,7 @@ public class Utilities {
         return hasImmediatePreviousTransaction;
     }
 
-    public static boolean HasAuthorizationTokenGHTraffic(List<HTTPTransaction> mm) {
+    public static boolean hasAuthorizationTokenGHTraffic(List<HTTPTransaction> mm) {
 
         return String.valueOf(mm.get(0).getCode()).matches("401")
                 || (String.valueOf(mm.get(0).getMethod()).matches("POST")
@@ -1011,21 +1018,21 @@ public class Utilities {
         return null;
     }
 
-    public static String GetJsonValueByKey(String key, String dataSetType) throws Exception {
+    public static String getJsonValueByKey(String key, String dataSetType) throws Exception {
         org.json.simple.JSONObject jsonObject = new org.json.simple.JSONObject();
 
         switch (dataSetType) {
             case "googletasks":
-                jsonObject = HeaderLabel.getGoogleArray();
+                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayGoogleTasks();
                 break;
             case "slack":
-                jsonObject = HeaderLabel.getSlackArray();
+                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArraySlack();
                 break;
             case "twitter":
-                jsonObject = HeaderLabel.getTwitterArray();
+                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayTwitter();
                 break;
             case "ghtraffic":
-                jsonObject = HeaderLabel.getGHTrafficArray();
+                jsonObject = OWLClassLabelsJSONArrays.getOwlClassLabelsJsonArrayGHTraffic();
 
                 break;
         }
@@ -1039,7 +1046,7 @@ public class Utilities {
         return value;
     }
 
-    public static String GetJsonKeyByValue(String value, org.json.simple.JSONObject jsonObject){
+    public static String getJsonKeyByValue(String value, org.json.simple.JSONObject jsonObject){
         value = value.contains("\'")? value.replace("\'","") : value;
 
         for (Object key: jsonObject.keySet()){
@@ -1049,6 +1056,43 @@ public class Utilities {
         }
 
         return value;
+    }
+
+    public static List<OWLClass> getOWLClasses(String owlFileName, String responseType) throws OWLOntologyCreationException {
+
+        OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+        File file = new File("src/resources/" + owlFileName + ".owl");
+        OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+
+        List<OWLClass> owlClassResponseHeaderList = new ArrayList<>();
+        List<OWLClass> owlClassResponseStatusCodeList = new ArrayList<>();
+        List<OWLClass> owlClassResponseBodyList = new ArrayList<>();
+
+        Set<OWLClass> owlClassSet = ontology.getClassesInSignature();
+
+        for(OWLClass owlClass : owlClassSet){
+            String response = owlClass.toString().split("#")[1].split("_")[0];
+            if(response.equals("ResponseHeader")){
+                owlClassResponseHeaderList.add(owlClass);
+            } else if (response.equals("ResponseStatusCode")){
+                owlClassResponseStatusCodeList.add(owlClass);
+            } else if (response.equals("ResponseBody")){
+                owlClassResponseBodyList.add(owlClass);
+            }
+        }
+
+        switch (responseType){
+            case "ResponseHeader" :
+                return owlClassResponseHeaderList;
+            case "ResponseStatusCode" :
+                return owlClassResponseStatusCodeList;
+            case "ResponseBody" :
+                return owlClassResponseBodyList;
+            default:{
+            }
+        }
+
+        return null;
     }
 
 }

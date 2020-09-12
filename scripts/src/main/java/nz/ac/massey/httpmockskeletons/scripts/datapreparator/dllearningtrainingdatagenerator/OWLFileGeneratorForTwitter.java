@@ -558,6 +558,9 @@ public class OWLFileGeneratorForTwitter {
     }
 
     public static String refineValueTwitter(String value) {
+        // escape special characters and notations from each OWL class name and
+        // use the original class name as OWL class label when creating the OWL class
+
         if (value.contains("Apache-HttpClient")) {
             value = "Apache-HttpClient";
         }
@@ -653,13 +656,13 @@ public class OWLFileGeneratorForTwitter {
             String RequestHeaderValue = "";
 
             if (HeaderKey.equals("HasAuthorisationToken")) {
-                RequestHeaderValue = String.valueOf(HasAuthorizationToken(mm));
+                RequestHeaderValue = String.valueOf(hasAuthorizationToken(mm));
             } else if (HeaderKey.equals("HasRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasRequestPayload());
+                RequestHeaderValue = String.valueOf(hasRequestPayload());
             } else if (HeaderKey.equals("HasValidRequestPayload")) {
-                RequestHeaderValue = String.valueOf(HasValidRequestPayload());
+                RequestHeaderValue = String.valueOf(hasValidRequestPayload());
             } else {
-                RequestHeaderValue = String.valueOf(Utilities.RequestHeadersTwitter(mm, HeaderKey));
+                RequestHeaderValue = String.valueOf(Utilities.requestHeadersTwitter(mm, HeaderKey));
             }
             if (RequestHeaderValue.contains("\'")) {
                 RequestHeaderValue = RequestHeaderValue.replaceAll("\'", "");
@@ -673,7 +676,7 @@ public class OWLFileGeneratorForTwitter {
 
         // RESPONSE HEADER
         else if (featureType == FeatureType.ResponseHeader) {
-            String responseHeaderValue = String.valueOf(Utilities.ResponseHeadersTwitter(mm, HeaderKey));
+            String responseHeaderValue = String.valueOf(Utilities.responseHeadersTwitter(mm, HeaderKey));
             if (responseHeaderValue.contains("\'")) {
                 responseHeaderValue = responseHeaderValue.replaceAll("\'", "");
             }
@@ -690,7 +693,7 @@ public class OWLFileGeneratorForTwitter {
 
         // RESPONSE BODY
         else if (featureType == FeatureType.ResponseBody && !HeaderKey.contains(".")) {
-            String HeaderValueToCompare = String.valueOf(Utilities.ResponseBodyTwitter(mm, HeaderKey));
+            String HeaderValueToCompare = String.valueOf(Utilities.responseBodyTwitter(mm, HeaderKey));
             if (HeaderValueToCompare.contains("_")) {
                 HeaderValueToCompare = HeaderValueToCompare.replaceAll("_", "");
             }
@@ -699,12 +702,12 @@ public class OWLFileGeneratorForTwitter {
             String error = HeaderKey.split("\\.")[0];
             String value = HeaderKey.split("\\.")[1];
 
-            return String.valueOf(Utilities.ResponseBodyInsideArrayTwitter(mm, error, value)).toUpperCase().equals(HeaderValue.toUpperCase());
+            return String.valueOf(Utilities.responseBodyInsideArrayTwitter(mm, error, value)).toUpperCase().equals(HeaderValue.toUpperCase());
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(HeaderKey, ".") == 1) {
             String message = HeaderKey.split("\\.")[0];
             String bot_id = HeaderKey.split("\\.")[1];
 
-            if (String.valueOf(Utilities.ResponseBodyInsideTwitter(mm, message, bot_id)).equals(HeaderValue)) {
+            if (String.valueOf(Utilities.responseBodyInsideTwitter(mm, message, bot_id)).equals(HeaderValue)) {
                 return true;
             }
         } else if (featureType == FeatureType.ResponseBody && StringUtils.countMatches(HeaderKey, ".") == 2) {
@@ -720,7 +723,7 @@ public class OWLFileGeneratorForTwitter {
         // REQUEST URI
         else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("urischema")) {
             try {
-                if (URITokeniser.GetURLScheme(mm.get(0).getURL()).equals(HeaderValue)) {
+                if (URITokeniser.getURLScheme(mm.get(0).getURL()).equals(HeaderValue)) {
                     return true;
                 }
             } catch (URISyntaxException e) {
@@ -728,7 +731,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("urihost")) {
             try {
-                if (URITokeniser.GetUriHost(mm.get(0).getURL()).equals(HeaderValue)) {
+                if (URITokeniser.getUriHost(mm.get(0).getURL()).equals(HeaderValue)) {
                     return true;
                 }
             } catch (URISyntaxException e) {
@@ -736,7 +739,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("uripathtoken1")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken1");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -748,7 +751,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("uripathtoken2")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken2");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -760,7 +763,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("uripathtoken3")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken3");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -772,7 +775,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("uripathtoken4")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken4");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -784,7 +787,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("uripathtoken5")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken5");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -796,7 +799,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("uripathtoken6")) {
             try {
-                String URLCoreTokenMap = URITokeniser.GetURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6");
+                String URLCoreTokenMap = URITokeniser.getURLCoreTokenMap(mm.get(0).getURL()).get("pathToken6");
                 if (URLCoreTokenMap == null) {
                     URLCoreTokenMap = "not-exist";
                 }
@@ -808,7 +811,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken1")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken1");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -822,7 +825,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken2")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken2");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -836,7 +839,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken3")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken3");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -850,7 +853,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturiquerytoken4")) {
             try {
-                String URLQueryTokenMap = URITokeniser.GetURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4");
+                String URLQueryTokenMap = URITokeniser.getURLQueryTokenMap(mm.get(0).getURL()).get("queryToken4");
                 if (URLQueryTokenMap == null) {
                     URLQueryTokenMap = "not-exist";
                 }
@@ -864,7 +867,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturifragmenttoken1")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken1");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -878,7 +881,7 @@ public class OWLFileGeneratorForTwitter {
             }
         } else if (featureType == FeatureType.RequestURI && HeaderKey.toLowerCase().contains("requesturifragmenttoken")) {
             try {
-                String FragmentMap = URITokeniser.GetFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
+                String FragmentMap = URITokeniser.getFragmentMap(mm.get(0).getURL()).get("fragmentToken2");
                 if (FragmentMap == null) {
                     FragmentMap = "not-exist";
                 }
@@ -904,7 +907,7 @@ public class OWLFileGeneratorForTwitter {
 
         // REQUEST AUTH TOKEN
         else if (featureType == FeatureType.RequestAuthToken) {
-            return String.valueOf(Utilities.HasAuthorizationToken(mm)).toUpperCase().equals(HeaderValue.toUpperCase());
+            return String.valueOf(Utilities.hasAuthorizationToken(mm)).toUpperCase().equals(HeaderValue.toUpperCase());
         }
 
         return false;
