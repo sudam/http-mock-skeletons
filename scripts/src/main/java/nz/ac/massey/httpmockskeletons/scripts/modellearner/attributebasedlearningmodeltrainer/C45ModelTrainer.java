@@ -49,19 +49,6 @@ public class C45ModelTrainer {
             classifier.buildClassifier(newTrainingDataSet);
             System.out.println(classifier);
 
-            // Print model
-            final javax.swing.JFrame jf = new javax.swing.JFrame("Weka Classifier Tree Visualizer: J48");
-            jf.setSize(2000, 1000);
-            jf.getContentPane().setLayout(new BorderLayout());
-            TreeVisualizer tv = new TreeVisualizer(null, classifier.graph(), new PlaceNode2());
-            jf.getContentPane().add(tv, BorderLayout.CENTER);
-            jf.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosing(java.awt.event.WindowEvent e) {
-                    jf.dispose();
-                }
-            });
-            jf.setVisible(true);
-            tv.fitToScreen();
         }
 
         // Handle exception if selected target is unary
